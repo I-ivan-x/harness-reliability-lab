@@ -1,8 +1,10 @@
 # Harness Reliability Lab
 
+![CI status on main](https://github.com/I-ivan-x/harness-reliability-lab/actions/workflows/ci.yml/badge.svg?branch=main)
+
 面向具备外部写副作用的智能体工具调用系统，将大语言模型输出隔离为不可信提案，由确定性宿主控制面独占身份凭证、单写槽位、幂等回执与恢复状态机的可靠性实证工程。
 
-**阅读导览**：[五幕交互专著 (Interactive Monograph)](site/index.html) · [控制面与协议规范](docs/architecture-and-protocol.md) · [实证评估报告](docs/empirical-evaluation.md) · [公开脱敏证据账本](evals/evidence_ledger.json) · [工程纪律契约](AGENTS.md)
+**阅读导览**：[在线五幕交互专著](https://i-ivan-x.github.io/harness-reliability-lab/) · [控制面与协议规范](docs/architecture-and-protocol.md) · [实证评估报告](docs/empirical-evaluation.md) · [公开脱敏证据账本](evals/evidence_ledger.json) · [工程纪律契约](AGENTS.md)
 
 ![控制面信任边界与副作用三态状态机架构](site/control-plane.svg)
 
@@ -57,7 +59,7 @@
 | `specs/` · `tasks/frozen/` | 零字节冻结契约规格（`replication-v1.json`、`replication-v2.json`）与 `18` 道确定性沙箱诊断题集 |
 | `evals/` | 独立协议/门禁/结果审计器、延迟与探针诊断、后训练安全导出、扩展实验套件及离线总审计入口 `evals/verify_all/` |
 | `docs/` | 两份正交深度报告：[控制面与协议规范](docs/architecture-and-protocol.md) 与 [实证评估报告](docs/empirical-evaluation.md) |
-| `site/` | 暖白专著级交互证据站（[五幕交互专著](site/index.html) 及自动编译生成的同风格静态阅读页，支持 `file://` 双击零跨域加载） |
+| `site/` | 五幕交互专著及自动生成的静态阅读页。离线阅读可双击 `site/index.html`。 |
 | `tests/` | 全离线确定性回归测试套件（覆盖跨层依赖边界、线缆超时、看门狗自愈、断电对账、静态站编译同步与脱敏门禁） |
 
 所有离线核验均在零外部 API 调用、零 `.env` 密钥与锁定依赖下运行：
