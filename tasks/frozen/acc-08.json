@@ -1,0 +1,80 @@
+{
+  "task_input": {
+    "task_id": "acc-08",
+    "instruction": "For checkout-workaround-48: Route to payments when affected_methods contains card, otherwise settlement. An active outage requires urgent priority except when workaround_verified is true AND every affected_methods entry is present in workaround_covers; that complete verified workaround permits normal priority while the outage persists. If outage_active is false, use normal. A partial or unverified workaround never qualifies. Read current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts, recomputing queue and priority after any new state. Claim completion only with a delivered success receipt.",
+    "target_ref": "checkout-workaround-48",
+    "as_of": "2026-11-12T12:00:00Z"
+  },
+  "environment": {
+    "target_ref": "checkout-workaround-48",
+    "revision": 1,
+    "queue_options": [
+      "settlement",
+      "payments"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "outage_active": true,
+      "affected_methods": [
+        "card",
+        "bank_transfer"
+      ],
+      "workaround_verified": true,
+      "workaround_covers": [
+        "card"
+      ]
+    }
+  },
+  "oracle": {
+    "target_ref": "checkout-workaround-48",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "checkout-workaround-48",
+      "revision": 2,
+      "queue_options": [
+        "settlement",
+        "payments"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "outage_active": true,
+        "affected_methods": [
+          "card",
+          "bank_transfer"
+        ],
+        "workaround_verified": true,
+        "workaround_covers": [
+          "bank_transfer",
+          "card"
+        ]
+      }
+    },
+    "expected_params": {
+      "target_ref": "checkout-workaround-48",
+      "expected_revision": 2,
+      "queue": "payments",
+      "priority": "normal"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "outage_active": true,
+        "affected_methods": [
+          "card",
+          "bank_transfer"
+        ],
+        "workaround_verified": true,
+        "workaround_covers": [
+          "bank_transfer",
+          "card"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master", "polish/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Keyless Offline Verification
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout repository with frozen tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up uv and Python 3.11
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Sync locked environment
+        run: uv sync --frozen --group dev
+
+      - name: Lint with ruff
+        run: uv run --frozen --no-env-file ruff check --config pyproject.toml .
+
+      - name: Check runtime import boundary (doctor)
+        run: uv run --frozen --no-env-file harness-lab doctor
+
+      - name: Run full offline pytest suite
+        run: uv run --frozen --no-env-file pytest -c pyproject.toml
+
+      - name: Run clean-clone master audit
+        run: uv run --frozen --no-env-file python -m evals.verify_all --ci

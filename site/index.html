@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>不可信提案与确定性执行：智能体工具控制面的可靠性、延迟与过程审计实证 — Harness Reliability Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="monograph-shell">
+    <header class="masthead">
+      <div class="masthead-eyebrow">AGENT CONTROL PLANE · EMPIRICAL SYSTEMS MONOGRAPH</div>
+      <h1 class="masthead-title">不可信提案与确定性执行：智能体工具控制面的可靠性、延迟与过程审计实证</h1>
+      <p class="masthead-subtitle">
+        在涉及工单创建、权限变更等真实外部写操作的场景中，网络超时会导致提交状态不明，并发修改会引发版本冲突，外部数据还可能混入恶意指令；若任由模型自行盲目重试，极易造成重复写入或越权副作用。本系统由宿主控制面接管身份凭证、单写槽位与恢复状态机，并沿着实证暴露的物理瓶颈，依次完成确权恢复、无状态热池韧性、前缀缓存与思考调控、高压上下文防爆及防作弊过程审计五层演进。
+      </p>
+      <div class="masthead-links">
+        <a href="./overview.html">仓库导览与速查表 (README)</a>
+        <a href="./architecture.html">控制面与协议规范 (Architecture)</a>
+        <a href="./evaluation.html">实证评估报告 (Evaluation)</a>
+        <a href="./ledger.html">公开脱敏证据账本 (Ledger)</a>
+        <a href="./agents.html">工程纪律契约 (AGENTS)</a>
+      </div>
+      <div class="summary-strip" id="masthead-summary-strip">
+        <div class="summary-cell">
+          <div class="summary-label">冻结配对主基准</div>
+          <div class="summary-value" data-bind="masthead_runs">--</div>
+          <div class="summary-sub" data-bind="masthead_blocks">--</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-label">并发版本失效恢复</div>
+          <div class="summary-value" data-bind="masthead_f3">--</div>
+          <div class="summary-sub" data-bind="masthead_safety">--</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-label">常驻热池 / 断电唤醒</div>
+          <div class="summary-value" data-bind="masthead_m1">--</div>
+          <div class="summary-sub" data-bind="masthead_m1_sub">--</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-label">前缀对齐与思考调控</div>
+          <div class="summary-value" data-bind="masthead_pareto">--</div>
+          <div class="summary-sub" data-bind="masthead_pareto_sub">--</div>
+        </div>
+        <div class="summary-cell">
+          <div class="summary-label">过程审计与账本签名</div>
+          <div class="summary-value" data-bind="masthead_m6">--</div>
+          <div class="summary-sub" data-bind="masthead_sha">--</div>
+        </div>
+      </div>
+
+      <div class="exec-highlights" aria-label="核心工程贡献总览">
+        <div class="exec-highlights-header">EXECUTIVE HIGHLIGHTS · 四大核心工程贡献</div>
+        <div class="exec-grid">
+          <div class="exec-card">
+            <div class="exec-tag">01 · DETERMINISTIC SAFETY</div>
+            <h2 class="exec-title">副作用零越界与跨断电自愈</h2>
+            <p class="exec-desc">
+              <span class="mono" data-bind="hl_runs">--</span> 次配对运行与 <span class="mono" data-bind="hl_crash">--</span> 次断电续跑均保持 <code>0</code> 越权、<code>0</code> 重复写，并发版本失效实现 <code>100%</code> 确权恢复。
+            </p>
+          </div>
+          <div class="exec-card">
+            <div class="exec-tag">02 · DUAL-END LATENCY CUT</div>
+            <h2 class="exec-title">本地与推理双端延迟削峰</h2>
+            <p class="exec-desc">
+              常驻热池砍掉 <span class="mono" data-bind="hl_warm">--</span> 冷启动开销；对齐 <code>56 + 256k</code> 缓存页并收敛原生工具通道后，单题推理耗时降低 <span class="mono" data-bind="hl_pareto">--</span>。
+            </p>
+          </div>
+          <div class="exec-card">
+            <div class="exec-tag">03 · CONTEXT &amp; SHIELD</div>
+            <h2 class="exec-title">高压上下文防爆与纵深防御</h2>
+            <p class="exec-desc">
+              在 <code>&gt;24.5 KB</code> 多分片负载下将主上下文峰值词元压降 <span class="mono" data-bind="hl_v2">--</span>，阻断间接提示词注入并削减 <span class="mono" data-bind="hl_loop">--</span> 死循环词元。
+            </p>
+          </div>
+          <div class="exec-card">
+            <div class="exec-tag">04 · PROCESS AUDIT FLYWHEEL</div>
+            <h2 class="exec-title">防作弊过程审计与后训练飞轮</h2>
+            <p class="exec-desc">
+              <span class="mono" data-bind="hl_hack">--</span> 拦截纯结果评分漏判的 <code>16/20</code> 伪满分作弊轨迹，零隐私泄漏导出掩码微调、同前缀偏好对与过程奖励样本。
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <nav class="section-nav" aria-label="章节导航">
+    <div class="section-nav-inner">
+      <a href="#act-1"><span class="nav-num">01</span>信任边界与恢复基线</a>
+      <a href="#act-2"><span class="nav-num">02</span>延迟物理归因与无状态韧性</a>
+      <a href="#act-3"><span class="nav-num">03</span>前缀缓存量化律与思考帕累托</a>
+      <a href="#act-4"><span class="nav-num">04</span>高压上下文虚拟化与纵深防御</a>
+      <a href="#act-5"><span class="nav-num">05</span>双通道契约治理与过程审计飞轮</a>
+    </div>
+  </nav>
+
+  <main class="monograph-shell">
+    <!-- ==================== ACT 1 ==================== -->
+    <section class="act-section" id="act-1">
+      <div class="prose-grid">
+        <div class="prose-col">
+          <div class="act-kicker">ACT I · TRUST BOUNDARY &amp; DETERMINISTIC RECOVERY</div>
+          <h2 class="act-heading">01 · 信任边界与确定性恢复基线</h2>
+          <p class="act-lead">
+            <strong>核心结论：由宿主独占单写槽位与副作用三态状态机后，两款模型在 <span class="mono" data-bind="s1_trials">--</span> 次配对运行中将并发版本失效恢复率从 <span class="mono" data-bind="s1_f3_p1_pct">--</span> 提升至 <span class="mono" data-bind="s1_f3_p2_pct">--</span>（<span class="mono" data-bind="s1_f3_jump">--</span>），全程零越权、零重复写。</strong>
+          </p>
+          <p>
+            当大语言模型连接至工单创建、租约变更或权限审批等不可逆写接口时，把重试与提交判断交给模型自主决定会带来两类系统性隐患。其一，本地超时（<code>TIMEOUT</code>）无法区分“请求未达服务端”与“服务端已落盘但回包丢失”，模型若擅自改参重提将直接造成重复写。其二，外部工具返回的自由文本一旦夹带伪造指令，极易诱导模型越界操作。
+          </p>
+          <p>
+            本系统通过唯一入口 <code>run(task_input, config, ports)</code> 将模型输出限制在纯业务提案域，由宿主独占身份凭证、单写槽位、线缆保护信封与副作用三态状态机（<code>NOT_COMMITTED</code> / <code>UNKNOWN</code> / <code>CONFIRMED</code>）。我们在冻结诊断集上对比三档递进恢复策略：遇到异常立即终止的零重试基线（<code>P0</code>）、在提交结果未知时锁定原幂等键与原参数重放的传输恢复策略（<code>P1</code>），以及仅在服务端确权该写槽位尚未产生任何提交或绑定（<code>certified_unbound=true</code>）后由宿主自动刷新状态并开放一次修正重提的完整恢复策略（<code>P2</code>）。
+          </p>
+          <p>
+            全批 <span class="mono" data-bind="s1_blocks">--</span> 个配对区组单次封存（外部 API 异常 <span class="mono" data-bind="s1_api_fail">--</span> 次），线缆层 <span class="mono" data-bind="s1_wire_req">--</span> 次请求帧全部对账守恒。<code>P1</code> 解决了瞬时超时与丢回执问题，但在外部并发修改导致版本失效的任务上得分为 <code>0/18</code>；<code>P2</code> 在双模型上均将该组得分推至 <code>18/18</code>，同时保持 <span class="mono" data-bind="s1_zero_safety">--</span>。
+          </p>
+          <div class="causal-bridge">
+            <strong>下一层追问 · 安全基线跑通后，主基准暴露了哪两处真实物理摩擦？</strong><br>
+            第一，在完全相同的 <code>+2.0</code> 次模型调用与 <code>+2.0</code> 次工具派发增量下，Model B（<code data-bind="s1_model_b_name">--</code>）每净增恢复一题需额外消耗 <strong class="mono" data-bind="s1_b_delta_s">--</strong>，是 Model A（<strong class="mono" data-bind="s1_a_delta_s">--</strong>）的 <span class="mono" data-bind="s1_b_over_a_ratio">--</span> 倍；第二，全批唯一失分槽位 <code data-bind="s1_loss_slot">--</code>（控制组 <span class="mono" data-bind="s1_b_ctrl_score">--</span>）在 HTTP 200 响应中退化输出了单引号 Python 字典。前者驱动第 02–03 幕的双端延迟剖析，后者将在第 05 幕从协议根源闭合。
+          </div>
+        </div>
+        <aside class="margin-col">
+          <div class="margin-title">Statistical Denominators</div>
+          <div id="margin-act-1"></div>
+        </aside>
+      </div>
+
+      <!-- SVG Figure 1 -->
+      <figure class="wide-canvas" id="figure-1">
+        <div class="canvas-header">
+          <h3 class="canvas-title">控制面信任边界、线缆保护信封隔离与副作用三态状态机</h3>
+          <span class="canvas-meta" data-bind="fig1_meta">--</span>
+        </div>
+        <div class="svg-container" id="svg-figure-1-mount"></div>
+        <div class="table-wrap" style="margin-top: 14px;">
+          <table class="data-table" id="table-replication-v2">
+            <thead>
+              <tr>
+                <th>模型与策略档位</th>
+                <th class="num">正确处置</th>
+                <th class="num">并发版本失效</th>
+                <th class="num">控制组</th>
+                <th class="num">可完成目标</th>
+                <th class="num">失效 / 控制 pass³</th>
+                <th class="num">总墙钟 (s)</th>
+                <th class="num">越权 / 重复写</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-replication-v2"></tbody>
+          </table>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 1.</strong>
+          左至右依次为不可信模型提案域、宿主确定性控制面（四维门禁 + 线缆保护信封动态注入 + 副作用三态状态机与 <code>P0/P1/P2</code> 恢复策略）及独立 MCP SQLite 沙箱。下方配对结果表直接由公开账本渲染；任务簇重采样（10,000 次 Bootstrap）确认双模型在并发版本失效组上的净增益均为 <span class="mono" data-bind="fig1_ci">--</span>。
+        </figcaption>
+      </figure>
+
+      <!-- Interactive Lab 1 -->
+      <section class="wide-canvas" id="lab-1" tabindex="0" aria-label="三栏联动轨迹与数据库状态步进回放器">
+        <div class="canvas-header">
+          <h3 class="canvas-title">交互实验台 1 · 三栏联动轨迹与 SQLite 沙箱状态步进回放器</h3>
+          <span class="canvas-meta">支持点击切换或聚焦实验台后按键盘 Left / Right 键逐步回放</span>
+        </div>
+        <div class="control-bar" id="lab1-traj-tabs" role="tablist"></div>
+        <div class="stepper-toolbar">
+          <div>
+            <span class="badge badge-focus" id="lab1-step-counter">--</span>
+            <strong id="lab1-phase-label" style="margin-left: 8px; font-size: 14px;">--</strong>
+          </div>
+          <div class="step-dots" id="lab1-step-dots"></div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn-step" id="lab1-prev-btn">上一步 (Left)</button>
+            <button type="button" class="btn-step" id="lab1-next-btn">下一步 (Right)</button>
+          </div>
+        </div>
+        <div class="three-col-stepper">
+          <div class="stepper-pane">
+            <div class="pane-header">
+              <span class="pane-title">1. 模型可见上下文 (Untrusted View)</span>
+              <span class="badge" id="lab1-left-role">--</span>
+            </div>
+            <div class="pane-summary" id="lab1-left-summary">--</div>
+            <pre id="lab1-left-payload"></pre>
+          </div>
+          <div class="stepper-pane">
+            <div class="pane-header">
+              <span class="pane-title">2. 宿主门禁与协议校验 (Host Gate)</span>
+              <span class="badge" id="lab1-mid-epistemic">--</span>
+            </div>
+            <div><span class="badge badge-focus" id="lab1-mid-verdict">--</span></div>
+            <div class="pane-summary" id="lab1-mid-wire">--</div>
+            <div class="pane-summary" id="lab1-mid-detail" style="color: var(--ink-secondary);">--</div>
+          </div>
+          <div class="stepper-pane">
+            <div class="pane-header">
+              <span class="pane-title">3. SQLite 状态实时差分 (Sandbox Truth)</span>
+              <span class="badge" id="lab1-right-kind">--</span>
+            </div>
+            <div class="kv-list" id="lab1-right-kv"></div>
+          </div>
+        </div>
+        <div class="figure-caption">
+          <strong>Interactive Lab 1 (Figure 2).</strong>
+          四条代表性脱敏轨迹均提取自已封存实验产物：涵盖并发版本冲突确权刷新（<code>acc-05</code>）、本地超时未知态锁定与迟到回执隔离（<code>acc-11</code>）、SQLite 提交后日志落盘前断电无状态唤醒（并排展示 <code>crash_db_snapshot</code>、<code>reconciled_db_snapshot</code> 与 <code>completed_db_snapshot</code>），以及 <code>state.facts</code> 间接提示词注入定界与重复指纹熔断。琥珀色与墨绿色行标示当前步发生跃迁的数据库字段。
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================== ACT 2 ==================== -->
+    <section class="act-section" id="act-2">
+      <div class="prose-grid">
+        <div class="prose-col">
+          <div class="act-kicker">ACT II · PHYSICAL LATENCY ATTRIBUTION &amp; STATELESS RESILIENCE</div>
+          <h2 class="act-heading">02 · 延迟物理归因与无状态控制面韧性</h2>
+          <p class="act-lead">
+            <strong>核心结论：两款模型总耗时差距的 <span class="mono" data-bind="s2_inf_share">--</span> 来自远端推理等待；在本地侧，常驻热池砍掉 <span class="mono" data-bind="s2_m1a_red">--</span> 冷启动耗时，只读回执对账实现 <span class="mono" data-bind="s2_m1b_count">--</span> 次跨断电续跑零重复写。</strong>
+          </p>
+          <p>
+            我们对全部 <span class="mono" data-bind="s2_runs">--</span> 条封存轨迹执行 <code>time.perf_counter()</code> 单调时钟四阶段分解。结果显示，跨模型总墙钟差值 <span class="mono" data-bind="s2_span_gap">--</span> 中有 <span class="mono" data-bind="s2_inf_gap">--</span>（<strong class="mono" data-bind="s2_inf_share">--</strong>）来自模型推理等待：Model B 隐式思考词元占总输出的 <span class="mono" data-bind="s2_b_reason_share">--</span>，而 Model A 仅占 <span class="mono" data-bind="s2_a_reason_share">--</span>。对 Model B 开展的 <span class="mono" data-bind="s2_stream_calls">--</span> 次 SSE 流式五节点打点进一步证实，单次调用均值 <span class="mono" data-bind="s2_stream_total">--</span> 中有 <strong class="mono" data-bind="s2_pre_vis_share">--</strong>（<span class="mono" data-bind="s2_ttft">--</span>）消耗在首个可见字符到达之前（首包排队 <span class="mono" data-bind="s2_ttfb">--</span> 加隐式思考 <span class="mono" data-bind="s2_think_win">--</span>），可见 JSON 字符生成本身平均仅需 <strong class="mono" data-bind="s2_vis_gen">--</strong>。
+          </p>
+          <p>
+            在宿主本地侧，状态机自身调度残差不足 <code>1.3ms</code>，唯一显著的固定损耗是每次派生独立 MCP 子进程的冷启动（主基准均值 <strong class="mono" data-bind="s2_cold_mcp">--</strong>）。我们构建常驻热沙箱池 <code>WarmWorkerPool</code>，在进程复用之上保持每次运行新建独立 SQLite 沙箱，将 <span class="mono" data-bind="s2_m1a_pairs">--</span> 对离线配对基准中位数 <span class="mono" data-bind="s2_c0_med">--</span> 压缩至 <strong class="mono" data-bind="s2_t1_med">--</strong>（削减 <strong class="mono" data-bind="s2_m1a_red">--</strong>，终态决策完全一致）。针对标准流管道死锁风险，双阈值看门狗在超时后立即强杀僵死进程、显式关闭全部底层管道句柄并自动拉起健康替补进程。
+          </p>
+          <p>
+            将沙箱长连接池化后，宿主进一步解耦为可随时销毁重启的无状态控制面，但仍须跨越进程断电时的跨介质状态撕裂风险。当进程中途断电造成“数据库已提交但宿主日志未落盘”时，重启宿主无需依赖内存检查点，直接通过 <code>?mode=ro</code> 只读方式挂载 SQLite 回执表与截断日志执行因果对账：一旦检出已落盘回执便立即恢复 <code>CONFIRMED</code> 状态并跳转终态，在全部 <span class="mono" data-bind="s2_m1b_count">--</span> 次断电续跑（<span class="mono" data-bind="s2_m1b_trials">--</span>）中实现终态签名完全一致与 <span class="mono" data-bind="s2_m1b_dup">--</span> 次重复写。
+          </p>
+          <div class="causal-bridge">
+            <strong>下一层追问 · 本地冷启动压至毫秒级后，如何削减远端推理 96% 的首字前等待？</strong><br>
+            本地基础设施摩擦消除后，延迟优化的主战场转向远端推理侧：为什么首轮请求频繁丢失前缀缓存？能否在不牺牲复杂恢复准确率的前提下压掉常规轮次的隐式思考税？
+          </div>
+        </div>
+        <aside class="margin-col">
+          <div class="margin-title">Monotonic Clock &amp; Resilience</div>
+          <div id="margin-act-2"></div>
+        </aside>
+      </div>
+
+      <!-- SVG Figure 2 -->
+      <figure class="wide-canvas" id="figure-2">
+        <div class="canvas-header">
+          <h3 class="canvas-title">四阶段单调时钟跨模型归因与流式五节点延迟瀑布图</h3>
+          <span class="canvas-meta">将鼠标悬停于任一阶段色块或流式节点以检视精确分位数</span>
+        </div>
+        <div class="svg-container" id="svg-figure-2-mount"></div>
+        <div class="hover-readout" id="fig2-hover-readout">
+          悬停图表色块检视精确单调时钟读数：跨模型墙钟差值中模型推理占比与流式五节点分布。
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 3.</strong>
+          上半部对比 324 次主基准中 Model A 与 Model B 的单调时钟四阶段累计构成；下半部展示 Model B 流式探针（20 次调用）从请求发出至流结束的五节点微观瀑布，揭示可见字符生成仅占极窄尾部窗口。
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- ==================== ACT 3 ==================== -->
+    <section class="act-section" id="act-3">
+      <div class="prose-grid">
+        <div class="prose-col">
+          <div class="act-kicker">ACT III · PREFIX CACHE QUANTIZATION LAW &amp; THINKING PARETO</div>
+          <h2 class="act-heading">03 · 前缀缓存分块量化律与思考预算帕累托</h2>
+          <p class="act-lead">
+            <strong>核心结论：揭示服务端 <code>56 + 256k</code> 缓存页对齐规律并收敛至强制工具输出通道后，未见新题首轮缓存命中率升至 <span class="mono" data-bind="s3_g1_unseen">--</span>–<span class="mono" data-bind="s3_g3_unseen">--</span>，单题平均推理延迟降低 <span class="mono" data-bind="s3_g1_red">--</span>。</strong>
+          </p>
+          <p>
+            审查主基准全部 <span class="mono" data-bind="s3_audit_reqs">--</span> 次请求后，我们首先排除了“工具列表顺序漂移”与“追加消息回溯失效”两项常见猜测。真正的根源在于服务端 KV 缓存页的物理量化步长：Model A 采用 <code>64</code> 词元细粒度分块（零未命中，总命中率 <span class="mono" data-bind="s3_a_hit">--</span>），而 Model B 的内部页命中值严格服从线性量化方程：
+          </p>
+          <div class="equation-box">
+            cached_tokens = 56 + 256k · 主基准 780 次请求命中 k = 4, 5, 6 (1080, 1336, 1592)；扩展对齐实验验证 k = 9, 10, 12 (2360, 2616, 3128)
+          </div>
+          <p>
+            主基准中 Model B 出现 <span class="mono" data-bind="s3_b_zero">--</span> 次零命中（含首轮跨题零命中 <span class="mono" data-bind="s3_b_t1_zero">--</span> 次）。这源于两处隐蔽耦合：一是系统提示词末尾拼入了逐题变化的 <code>target_ref</code>，污染了第 <code>4</code> 个 <code>256</code> 词元缓存页尾部；二是即便消息正文一字不差，切换请求级 <code>thinking</code> 参数也会改写服务端模板头部的思考控制词元，破坏 <code>56</code> 词元头部偏移与后续 <code>256</code> 词元缓存页边界对齐，触发整段前缀重算。
+          </p>
+          <p>
+            为此我们设计四组受控对照实验（共 <span class="mono" data-bind="s3_pareto_runs">--</span> 次运行，四臂各 <code>16/16</code> 正确且 <code>0</code> 格式错误）：保留动态后缀与自由文本 JSON 终态的基线组（<code>G0</code>）；将静态规则扩展对齐至整页边界、把动态 <code>target_ref</code> 下沉至用户消息，并改用显式工具 <code>submit_disposition()</code> 配合 <code>tool_choice="required"</code> 且保留默认请求头的对齐组（<code>G1</code>）；在 <code>G1</code> 基础上显式传入关闭思考请求头的对照臂（<code>G2</code>）；以及常规轮使用零思考执行器、仅在版本冲突时串行呼叫低预算带外顾问的混合组（<code>G3</code>）。
+          </p>
+          <p>
+            实测表明，<code>G1</code> 在避免跨模式头部重算的同时，利用强制工具调用将隐式思考词元从 <span class="mono" data-bind="s3_g0_reason">--</span> 压至 <code>0</code>，未见新题首轮命中率从主基准新题首次出场的 <code>0%</code>（四臂未对齐基线 <code>G0</code> 为 <span class="mono" data-bind="s3_g0_unseen">--</span>）跃升至 <code>G1</code> 的 <strong class="mono" data-bind="s3_g1_unseen">--</strong> 与同请求头连续热态 <code>G3</code> 的 <strong class="mono" data-bind="s3_g3_unseen">--</strong>，单题平均推理耗时从 <span class="mono" data-bind="s3_g0_inf">--</span> 降至 <strong class="mono" data-bind="s3_g1_inf">--</strong>（降低 <strong class="mono" data-bind="s3_g1_red">--</strong>）。对于带外串行顾问 <code>G3</code>（单次顾问调用均值 <span class="mono" data-bind="s3_adv_mean">--</span>，常规轮思考税节省 <span class="mono" data-bind="s3_think_save">--</span>），其相对全程思考基线取得净收益的充要边界为：
+          </p>
+          <div class="equation-box" data-bind="s3_breakeven_eq">--</div>
+          <p>
+            由此确立清晰的架构选型分野：在规则明确的结构化工具任务上，零思考 <code>G1</code> 全区间帕累托占优；而面对零思考执行器难以独立收敛的复杂多约束恢复场景，<code>G3</code> 在保住常规流量零思考速度与 <strong class="mono" data-bind="s3_g3_overall_hit">--</strong> 高缓存命中率的同时，将串行顾问开销严格收敛在 <code>&lt;<span data-bind="s3_breakeven_pct">--</span></code> 的低频异常尾部。
+          </p>
+          <div class="causal-bridge">
+            <strong>下一层追问 · 当单次状态突破 24 KB 且混入恶意指令时，控制面如何防溢出、防注入、防死循环？</strong><br>
+            主基准单次状态返回不足 <code>1 KB</code>；一旦进入真实复杂运维环境，面对超过 <code>24.5 KB</code> 的高噪分片状态、十余份操作手册、数据面夹带的伪造系统指令以及不可解配置陷阱，单靠前缀对齐已无法守住上下文容量与运行安全边界。
+          </div>
+        </div>
+        <aside class="margin-col">
+          <div class="margin-title">Cache Pages &amp; Pareto Bounds</div>
+          <div id="margin-act-3"></div>
+        </aside>
+      </div>
+
+      <!-- Interactive Lab 2 -->
+      <section class="wide-canvas" id="lab-2" aria-label="前缀缓存分块对齐与 Advisor 盈亏平衡模拟器">
+        <div class="canvas-header">
+          <h3 class="canvas-title">交互实验台 2 · 前缀缓存 56 + 256k 分块对齐与带外 Advisor 盈亏平衡模拟器</h3>
+          <span class="canvas-meta">上半部切换动静分离前后页边界命中；下半部拖动 p_rec 滑块实时重绘期望耗时曲线</span>
+        </div>
+        <div class="sim-split">
+          <!-- Top Half: Cache Block Quantization Visualizer -->
+          <div class="inset-card">
+            <div class="control-bar" style="justify-content: space-between;">
+              <div>
+                <strong style="font-size: 13.5px;">A. 256 词元 KV 缓存页边界对齐视图</strong>
+              </div>
+              <div style="display: flex; gap: 6px;" id="lab2-cache-mode-btns">
+                <button type="button" class="btn-tab active" data-cache-mode="aligned">动静分离对齐后 (G1 / G3)</button>
+                <button type="button" class="btn-tab" data-cache-mode="unaligned">原始动态后缀污染 (G0)</button>
+                <button type="button" class="btn-tab" data-cache-mode="header_toggle">切换 thinking 参数击穿 (G1 → G2)</button>
+              </div>
+            </div>
+            <div class="svg-container" id="lab2-cache-svg-mount" style="padding: 10px;"></div>
+            <div class="hover-readout" id="lab2-cache-summary">--</div>
+          </div>
+
+          <!-- Bottom Half: p_rec Interactive Simulator -->
+          <div class="inset-card">
+            <div class="slider-bar">
+              <label for="prec-slider" style="font-size: 13.5px; font-weight: 600;">
+                B. 异常恢复触发率 <code>p_rec</code>：
+                <span class="badge badge-focus" id="prec-readout">33.3%</span>
+              </label>
+              <input type="range" id="prec-slider" class="terra-slider" min="0" max="100" step="0.5" value="33.3">
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <button type="button" class="btn-step" data-prec-preset="8">常规生产 (8.0%)</button>
+                <button type="button" class="btn-step" data-prec-preset="33.3">18 题基准 (33.3%)</button>
+                <button type="button" class="btn-step" id="btn-preset-breakeven" data-prec-preset="43.9">Advisor 盈亏点</button>
+                <button type="button" class="btn-step" data-prec-preset="75">压力套件 (75.0%)</button>
+              </div>
+            </div>
+            <div class="svg-container" id="lab2-pareto-svg-mount" style="padding: 10px;"></div>
+            <div class="sim-cards" id="lab2-sim-cards"></div>
+          </div>
+        </div>
+        <div class="figure-caption">
+          <strong>Interactive Lab 2 (Figure 4).</strong>
+          所有曲线斜率与截距完全由 <code>G0..G3</code> 实测控制组均值 <span class="mono">T_ctrl</span> 与并发失效组均值 <span class="mono">T_rec</span> 按线性期望 <span class="mono">E[T(p_rec)] = (1 - p_rec)·T_ctrl + p_rec·T_rec</span> 实时计算。结构化工具任务上 <code>G1</code> 全区间占优；对比“全程开启思考单智能体”与“零思考执行器 + 按需带外顾问”时，盈亏交点位于约 <code>44%–45%</code>。
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================== ACT 4 ==================== -->
+    <section class="act-section" id="act-4">
+      <div class="prose-grid">
+        <div class="prose-col">
+          <div class="act-kicker">ACT IV · CONTEXT VIRTUALIZATION &amp; DEFENSE-IN-DEPTH</div>
+          <h2 class="act-heading">04 · 高压上下文虚拟化与运行时纵深防御</h2>
+          <p class="act-lead">
+            <strong>核心结论：在超过 24.5 KB 的高噪状态与 12 份领域规程下，溢出落盘切片与只读子智能体架构将主上下文峰值词元压降 <span class="mono" data-bind="s4_v2_red">--</span>（完成率由 0/6 升至 <span class="mono" data-bind="s4_v2_done">--</span>），同时全面阻断提示词注入并削减 <span class="mono" data-bind="s4_loop_tok_red">--</span> 死循环词元。</strong>
+          </p>
+          <p>
+            为明确上下文虚拟化的启用边界与各组件独立贡献，我们在单题状态超过 <code>24.5 KB</code>（含 <code>120</code> 条历史噪声工单与分片遥测）并附带 <code>12</code> 份领域 SOP 手册的高压基准上执行三阶递进消融。首先，将全量状态与全部手册直接拼接内联的基线（<code>V0</code>）使首轮请求在发往模型前被单次载荷/预算门禁拦截时的折算输入规模高达 <strong class="mono" data-bind="s4_v0_peak">--</strong> 词元，<code>6/6</code> 全部被前置阻断（完成率 <code>0/6</code>）。
+          </p>
+          <p>
+            随后，引入超过 <code>4 KB</code> 自动落盘切片读取（<code>read_slice</code>）与按需规程挂载（<code>load_skill</code>）的虚拟化方案（<code>V1</code>），率先跑通全部 <code>6/6</code> 任务并将主上下文峰值输入降至 <span class="mono" data-bind="s4_v1_peak">--</span> 词元。在此基础上，进一步把多切片高噪遍历委托给物理剥离写权限（<code>can_write=False</code>）的只读巡检子智能体，仅以严格 <code>json_schema</code> 向主智能体回传精简证据摘要（<code>V2</code>）：多轮分片检索轨迹被彻底隔离在子会话内部，使主智能体累计输入词元较 <code>V1</code> 再降 <span class="mono" data-bind="s4_v2_cum_red">--</span>，主峰值输入进一步压至 <strong class="mono" data-bind="s4_v2_peak">--</strong> 词元（较 <code>V0</code> 压降 <strong class="mono" data-bind="s4_v2_red">--</strong>），且针对子智能体端口的 <code>6/6</code> 次越权写探测全部被服务端 <code>PERMISSION_DENIED</code> 硬拒绝。
+          </p>
+          <p>
+            在运行时安全对抗层，我们构建覆盖两类典型威胁的红队基准：一是在外部状态文本中夹带伪造系统覆盖指令的间接提示词注入，二是诱导模型反复重试耗尽预算的不可解队列死循环陷阱。实验对比仅依赖底层门禁拦截的无定界、无熔断基线（<code>S0</code>），以及叠加双层不可信数据定界符（Spotlighting）与 <code>(tool, args, state_revision, outcome_code)</code> SHA-256 指纹熔断器的纵深防护组（<code>S1</code>）。实测两臂越权写副作用恒为 <span class="mono" data-bind="s4_false_allow">--</span>；<code>S1</code> 取得 <span class="mono" data-bind="s4_s1_score">--</span> 全部合规处置并消除模型层被诱导产生的额外工具尝试，同时将死循环陷阱的模型调用与输入词元分别削减 <strong class="mono" data-bind="s4_loop_call_red">--</strong> 与 <strong class="mono" data-bind="s4_loop_tok_red">--</strong>。
+          </p>
+          <div class="causal-bridge">
+            <strong>收口追问 · 如何根治终态格式退化，并防止绕过结果评分的“伪满分轨迹”污染模型后训练？</strong><br>
+            运行时防线稳固之后，还剩最后两块拼图：第一幕留下的 <code>acc-15</code> 单引号字典退化如何从协议源头彻底消除？当我们将运行轨迹回流用于模型微调与强化学习时，如何揪出那些碰巧撞对数据库终态但过程违规的“伪满分轨迹”？
+          </div>
+        </div>
+        <aside class="margin-col">
+          <div class="margin-title">Virtualization &amp; Shield Metrics</div>
+          <div id="margin-act-4"></div>
+        </aside>
+      </div>
+
+      <figure class="wide-canvas" id="figure-4-5">
+        <div class="canvas-header">
+          <h3 class="canvas-title">高压上下文虚拟化递进消融 (V0–V2) 与抗注入/环路熔断 (S0–S1) 定量对照</h3>
+          <span class="canvas-meta" data-bind="fig4_meta">--</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>实验模块与对照臂</th>
+                <th>核心控制面机制</th>
+                <th class="num">正确处置 / 分母</th>
+                <th class="num">目标完成 / 阻断</th>
+                <th class="num">关键词元或调用指标</th>
+                <th class="num">相对基线变化</th>
+                <th>权限与安全不变量核验</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-act-4"></tbody>
+          </table>
+        </div>
+        <figcaption class="figure-caption">
+          <strong>Figure 5.</strong>
+          汇总高压上下文虚拟化三阶消融与运行时安全红队实测结果。子智能体移交仅传递受严格模式约束的结构化巡检摘要，最终写操作仍由主智能体在最新版本号上通过宿主门禁完成。
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- ==================== ACT 5 ==================== -->
+    <section class="act-section" id="act-5">
+      <div class="prose-grid">
+        <div class="prose-col">
+          <div class="act-kicker">ACT V · DUAL-CHANNEL GOVERNANCE, ANTI-REWARD-HACKING &amp; POST-TRAINING FLYWHEEL</div>
+          <h2 class="act-heading">05 · 双通道契约治理、防奖励黑客过程审计与后训练飞轮</h2>
+          <p class="act-lead">
+            <strong>核心结论：统一原生工具终止通道在全部 <span class="mono" data-bind="s5_submit_runs">--</span> 次实测中实现 <span class="mono" data-bind="s5_submit_pct">--</span> 结构化解析与零格式退化；三级过程评分器以 100% 精确率与召回率（<span class="mono" data-bind="s5_hack_pr">--</span>）拦截纯结果评分漏判的 16/20 伪满分作弊轨迹，零泄漏导出对齐语料。</strong>
+          </p>
+          <p>
+            回溯第一幕唯一控制题失分槽位 <code>acc-15-r2-B-P2</code>：受控流式探针证实，当文本 <code>json_object</code> 模式与工具定义共存时，服务端无法对自由文本通道施加严格词法约束，第 4 次运行在命中 <code>1080</code> 词元缓存页时自然复现了单引号 Python 字典响应。我们拒绝在运行时添加 <code>ast.literal_eval()</code> 事后宽容解析（因其放行非标准字面量并掩盖上游契约漂移），转而量化验证两条合规路径：单轮确定性语法报错反馈实现 <strong class="mono" data-bind="s5_probe2_rate">--</strong> 自纠错（触发时额外增加 <span class="mono" data-bind="s5_probe2_lat">--</span>）；而废除文本终态、统一改为显式工具 <code>submit_disposition()</code> 则从根源消除了双通道分裂，在探针与帕累托扩展共 <code>58</code> 次运行中取得 <strong class="mono" data-bind="s5_probe3_rate">--</strong> 结构化解析与零格式退化。
+          </p>
+          <p>
+            在轨迹回流后训练前，<code>60</code> 条轨迹元评测揭示了纯结果评分器的结构性盲区：未读状态盲猜参数碰巧写库成功、超时处于 <code>UNKNOWN</code> 态谎报未提交、吞没权限拒绝伪装安全停止等五类合成作弊中，有 <strong class="mono">16/20</strong> 骗过了纯结果检查。三级过程评分器通过步级因果核验建立对称分层：第一档为洁净最小证据轨迹 <code>STRICT_CLEAN</code>，其读写因果与引用最小化全部合规，平均步级折扣回报达 <strong class="mono" data-bind="s5_ret_clean">--</strong>；第二档为主实验真实恢复轨迹 <code>VALID_WITH_HYGIENE_WARN</code>，其业务终态与状态刷新均真实有效，仅存在历史失效观察引用未精简的轻微卫生瑕疵，与结果作弊严格区分，平均回报为 <strong class="mono" data-bind="s5_ret_warn">--</strong>；第三档为合成作弊轨迹 <code>REWARD_HACK_BLOCKED</code>，拦截精确率与召回率均达 <code>1.0</code>（<span class="mono" data-bind="s5_hack_pr">--</span>），平均回报压降至 <strong class="mono" data-bind="s5_ret_hack">--</strong>，三档回报保持严格单调递减。
+          </p>
+          <p>
+            最终，离线导出管线在 <span class="mono" data-bind="s5_red_lines">--</span> 项负向脱敏红线守卫下封存 <strong class="mono" data-bind="s5_sft_count">--</strong> 条步级掩码微调轨迹（仅对 <span class="mono" data-bind="s5_sup_turns">--</span> 个助手决策轮赋予 <code>loss_mask=1</code>，其余 <span class="mono" data-bind="s5_mask_turns">--</span> 个系统、宿主通知与工具回执轮一律设为 <code>loss_mask=0</code>）以及 <strong class="mono" data-bind="s5_dpo_count">--</strong> 组同前缀 <code>acc-15</code> 偏好对齐样本，跑通从确定性运行时控制面到高信噪比对齐数据的完整飞轮。
+          </p>
+        </div>
+        <aside class="margin-col">
+          <div class="margin-title">Process Audit &amp; Training Flywheel</div>
+          <div id="margin-act-5"></div>
+        </aside>
+      </div>
+
+      <!-- Interactive Lab 3 -->
+      <section class="wide-canvas" id="lab-3" aria-label="双通道退化报文差分与后训练掩码及过程审计检视台">
+        <div class="canvas-header">
+          <h3 class="canvas-title">交互实验台 3 · 双通道退化报文差分与后训练掩码 / 过程审计检视台</h3>
+          <span class="canvas-meta">切换 Tab 1 检视 acc-15 四路真实脱敏报文与损益；切换 Tab 2 检视三级过程审计与步级染色</span>
+        </div>
+        <div class="control-bar">
+          <button type="button" class="btn-tab active" id="lab3-tab-btn-1">Tab 1 · acc-15 双通道四路报文对照与治理损益</button>
+          <button type="button" class="btn-tab" id="lab3-tab-btn-2">Tab 2 · 三级过程审计矩阵与 Loss Mask / PRM 染色视图</button>
+        </div>
+
+        <!-- Tab 1 Panel -->
+        <div id="lab3-panel-1">
+          <div class="payload-grid" id="lab3-payload-grid"></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>治理方案</th>
+                  <th>数据锚点</th>
+                  <th>输出协议通道</th>
+                  <th class="num">缓存词元</th>
+                  <th class="num">额外调用</th>
+                  <th class="num">均值耗时 (s)</th>
+                  <th>实测通过率与架构裁决</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-acc15-fourway"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2 Panel -->
+        <div id="lab3-panel-2" style="display: none;">
+          <div class="stepper-toolbar">
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="lab3-tier-btns">
+              <button type="button" class="btn-tab active" data-tier="STRICT_CLEAN">STRICT_CLEAN (洁净最小引用)</button>
+              <button type="button" class="btn-tab" data-tier="VALID_WITH_HYGIENE_WARN">VALID_WITH_HYGIENE_WARN (主实验有效轨迹)</button>
+              <button type="button" class="btn-tab" data-tier="REWARD_HACK_BLOCKED">REWARD_HACK_BLOCKED (合成奖励黑客)</button>
+            </div>
+            <div>
+              <label style="font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="lab3-dye-toggle" checked>
+                <strong>开启 Loss Mask 与 PRM 步级奖励染色视图</strong>
+              </label>
+            </div>
+          </div>
+          <div class="inset-card" style="margin-bottom: 12px;" id="lab3-tier-summary-bar"></div>
+          <div class="dye-turn-list dye-active" id="lab3-turn-list"></div>
+        </div>
+
+        <div class="figure-caption">
+          <strong>Interactive Lab 3 (Figure 6).</strong>
+          Tab 1 展示 <code>acc-15</code> 真实封存响应的词法级对比及拒绝 <code>ast.literal_eval()</code> 的契约依据；Tab 2 直观区分监督微调掩码（仅合规 <code>assistant</code> 轮赋予 <code>loss_mask=1</code>，系统指令、工具回执与宿主恢复通知一律 <code>loss_mask=0</code>）以及过程奖励模型在折扣因子 <code>gamma = 0.95</code> 下的步级贡献。
+        </div>
+      </section>
+    </section>
+
+    <footer class="monograph-footer">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;">
+        <div>
+          Harness Reliability Lab · 全站数值由 <code>window.HARNESS_LEDGER</code> 实时驱动渲染 · 零外部 API 调用核验命令：<code>uv run --frozen --no-env-file python -m evals.verify_all --ci</code>
+        </div>
+        <div class="mono" data-bind="footer_integrity">--</div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="./ledger-data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

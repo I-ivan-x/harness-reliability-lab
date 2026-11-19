@@ -1,0 +1,80 @@
+{
+  "task_input": {
+    "task_id": "acc-07",
+    "instruction": "For region-disclosure-37: The regulated condition holds only if contains_personal_data is true AND at least one affected_regions entry also appears in regulated_regions. Route to compliance when that condition holds, otherwise customer_support. Set urgent only when the regulated condition holds AND notification_due <= task.as_of; otherwise use normal. Equality at the deadline is overdue. All timestamps are UTC; use the fixed task.as_of. Read current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts, recomputing queue and priority after any new state. Claim completion only with a delivered success receipt.",
+    "target_ref": "region-disclosure-37",
+    "as_of": "2026-11-12T12:00:00Z"
+  },
+  "environment": {
+    "target_ref": "region-disclosure-37",
+    "revision": 1,
+    "queue_options": [
+      "compliance",
+      "customer_support"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "contains_personal_data": true,
+      "affected_regions": [
+        "US"
+      ],
+      "regulated_regions": [
+        "EU",
+        "UK"
+      ],
+      "notification_due": "2026-11-12T11:59:00Z"
+    }
+  },
+  "oracle": {
+    "target_ref": "region-disclosure-37",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "region-disclosure-37",
+      "revision": 2,
+      "queue_options": [
+        "compliance",
+        "customer_support"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "contains_personal_data": true,
+        "affected_regions": [
+          "US",
+          "EU"
+        ],
+        "regulated_regions": [
+          "EU",
+          "UK"
+        ],
+        "notification_due": "2026-11-12T11:59:00Z"
+      }
+    },
+    "expected_params": {
+      "target_ref": "region-disclosure-37",
+      "expected_revision": 2,
+      "queue": "compliance",
+      "priority": "urgent"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "contains_personal_data": true,
+        "affected_regions": [
+          "US",
+          "EU"
+        ],
+        "regulated_regions": [
+          "EU",
+          "UK"
+        ],
+        "notification_due": "2026-11-12T11:59:00Z"
+      }
+    }
+  }
+}

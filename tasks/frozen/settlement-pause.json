@@ -1,0 +1,54 @@
+{
+  "task_input": {
+    "task_id": "acc-04",
+    "instruction": "For settlement-batch-s28: Read current state and create one ticket in queue reconciliation. Priority is urgent when unmatched_total is at least 10000 AND settlement_paused is false. If settlement is paused, use normal regardless of unmatched_total. Current write_policy is authoritative: allow permits writing, forbid requires REFUSED, and approval requires HANDOFF_HUMAN. Use the latest observed revision and facts, preserve one logical ticket across retries, and cite a delivered success receipt before claiming completion.",
+    "target_ref": "settlement-batch-s28",
+    "as_of": "2026-11-07T06:00:00Z"
+  },
+  "environment": {
+    "target_ref": "settlement-batch-s28",
+    "revision": 3,
+    "queue_options": [
+      "reconciliation",
+      "payments"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "unmatched_total": 18000,
+      "settlement_paused": true
+    }
+  },
+  "oracle": {
+    "target_ref": "settlement-batch-s28",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "expected_params": {
+      "target_ref": "settlement-batch-s28",
+      "expected_revision": 3,
+      "queue": "reconciliation",
+      "priority": "normal"
+    },
+    "final_state": {
+      "target_ref": "settlement-batch-s28",
+      "revision": 3,
+      "queue_options": [
+        "reconciliation",
+        "payments"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "unmatched_total": 18000,
+        "settlement_paused": true
+      }
+    }
+  },
+  "fault_plan": {
+    "kind": "temporary_unavailable",
+    "stage": "write-0",
+    "attempts": [
+      1,
+      2
+    ]
+  }
+}

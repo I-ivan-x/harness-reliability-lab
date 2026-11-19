@@ -1,0 +1,39 @@
+{
+  "task_input": {
+    "task_id": "dev-state-change",
+    "instruction": "Read the current state for change-X and create exactly one ticket if policy allows it. Use queue ops. Choose urgent priority when customer_impact is true and normal priority otherwise. If the state changes, use the freshly observed revision and facts. Never claim success without citing a delivered success receipt. Follow the current policy: forbid means refuse; approval means hand off for human approval.",
+    "target_ref": "change-X",
+    "as_of": "2026-11-06T00:00:00Z"
+  },
+  "environment": {
+    "target_ref": "change-X",
+    "revision": 1,
+    "queue_options": ["ops", "platform"],
+    "write_policy": "allow",
+    "facts": {"customer_impact": false}
+  },
+  "oracle": {
+    "target_ref": "change-X",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "revision": 2,
+      "facts": {"customer_impact": true}
+    },
+    "expected_params": {
+      "target_ref": "change-X",
+      "expected_revision": 2,
+      "queue": "ops",
+      "priority": "urgent"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {"customer_impact": true}
+    }
+  }
+}

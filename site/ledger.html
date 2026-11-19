@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公开脱敏证据账本 (Evidence Ledger) — Harness Reliability Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <nav class="companion-nav" aria-label="配套文档导航">
+    <div class="companion-nav-inner">
+      <a class="companion-return" href="./index.html">← 返回五幕交互专著</a>
+      <div class="companion-tabs"><a href="./overview.html">仓库导览与速查表 (README)</a><a href="./architecture.html">控制面与协议规范 (Architecture)</a><a href="./evaluation.html">实证评估报告 (Evaluation)</a><a href="./ledger.html" class="active">公开证据账本 (Ledger)</a><a href="./agents.html">工程纪律契约 (AGENTS)</a></div>
+    </div>
+  </nav>
+  <main class="doc-shell">
+    <div class="doc-meta-bar">COMPANION INSPECTOR · COMPILED FROM evals/evidence_ledger.json</div>
+    <article class="doc-article">
+<h1 id="ledger-top">公开脱敏证据账本检视器 (Evidence Ledger)</h1>
+<p>本页直接加载同目录下的确定性数据脚本 <code>./ledger-data.js</code>（与版本库跟踪的 <code>evals/evidence_ledger.json</code> 逐字段严格同步，总体积严格小于 <code>150 KB</code>），展示冻结基线锚点、11 棵原始实验目录的 SHA-256 树哈希回执，以及可按模块展开检视的格式化脱敏 JSON 载荷。</p>
+<div class="summary-strip" style="margin:20px 0 28px;"><div class="summary-cell"><div class="summary-label">账本模式版本</div><div class="summary-value">harness-public-evidence-ledger-v1</div><div class="summary-sub">Grader: judgment-v2</div></div><div class="summary-cell"><div class="summary-label">冻结提交锚点</div><div class="summary-value">ea1cddd3fe27</div><div class="summary-sub">Tag: harness-replication-v2</div></div><div class="summary-cell"><div class="summary-label">冻结代码 / 题集摘要</div><div class="summary-value">31 + 23 项</div><div class="summary-sub">0 字节变更强校验</div></div><div class="summary-cell"><div class="summary-label">主基准复核</div><div class="summary-value">324/324 Runs</div><div class="summary-sub">0 越权 · 0 重复写</div></div><div class="summary-cell"><div class="summary-label">自校验载荷哈希</div><div class="summary-value">fd064ca530d1..</div><div class="summary-sub">16 项脱敏红线全绿</div></div></div>
+<h2 id="sec-receipts">1. 原始实验目录 SHA-256 树哈希回执（11 Trees）</h2>
+<div class="table-wrap"><table class="data-table"><thead><tr><th>账本键名</th><th>原始目录标识</th><th class="num">文件数</th><th class="num">总字节数</th><th>SHA-256 树摘要前缀</th></tr></thead><tbody><tr><td class="mono">replication_v2_raw</td><td class="mono">artifacts/replication-v2-2026-11-17</td><td class="num">2131</td><td class="num">25,931,124</td><td class="mono">009c3a3c44c7dd3563980a69..</td></tr><tr><td class="mono">replication_v2_audit</td><td class="mono">artifacts/replication-v2-2026-11-17-audit</td><td class="num">327</td><td class="num">2,818,250</td><td class="mono">809e721aa65db5a88a0e1ae3..</td></tr><tr><td class="mono">diagnostics_v2</td><td class="mono">artifacts/diagnostics-v2-2026-11-18</td><td class="num">3</td><td class="num">604,315</td><td class="mono">ee0b8a525a01abb05212a7fb..</td></tr><tr><td class="mono">acc15_probe_v2</td><td class="mono">artifacts/acc15-probe-v2-2026-11-18</td><td class="num">4</td><td class="num">54,483</td><td class="mono">489ebe55d1433ce990d9810c..</td></tr><tr><td class="mono">post_training_v2</td><td class="mono">artifacts/post-training-v2-2026-11-18</td><td class="num">3</td><td class="num">258,328</td><td class="mono">19546cb119b1452803a5cb6f..</td></tr><tr><td class="mono">m1a_warm_pool</td><td class="mono">artifacts/nextgen-v1-m1a-warm-pool</td><td class="num">3</td><td class="num">23,498</td><td class="mono">79c09698a43f2f5831a8e1dc..</td></tr><tr><td class="mono">m1b_crash_resume</td><td class="mono">artifacts/nextgen-v1-m1b-crash-resume</td><td class="num">2</td><td class="num">52,114</td><td class="mono">cf6eab9c8fb65b5c30fa1a16..</td></tr><tr><td class="mono">m2a_m3_pareto</td><td class="mono">artifacts/nextgen-v1-m2a-m3-pareto</td><td class="num">2</td><td class="num">73,693</td><td class="mono">2d05d011347dc37c6b32d698..</td></tr><tr><td class="mono">m2b_m4_context_virtual</td><td class="mono">artifacts/nextgen-v1-m2b-m4-context-virtual</td><td class="num">2</td><td class="num">10,422</td><td class="mono">9e36839bd929a95c1c7d93e4..</td></tr><tr><td class="mono">m5_security_shield</td><td class="mono">artifacts/nextgen-v1-m5-security-shield</td><td class="num">2</td><td class="num">9,567</td><td class="mono">6a01c78b34f44937c4cba860..</td></tr><tr><td class="mono">m6_process_grader</td><td class="mono">artifacts/nextgen-v1-m6-process-grader</td><td class="num">2</td><td class="num">756,011</td><td class="mono">ec8331b9fe61eaba67a6d700..</td></tr></tbody></table></div>
+<h2 id="sec-json-explorer">2. 分模块可折叠脱敏 JSON 载荷检视</h2>
+<div id="ledger-collapsible-mount"></div>
+    </article>
+    <footer class="monograph-footer" style="margin-top:48px;border-top:1px solid var(--line-subtle);">
+      <a href="./index.html">← 返回五幕交互专著</a> · 零外部 API 离线核验：<code>uv run --frozen --no-env-file python -m evals.verify_all --ci</code>
+    </footer>
+  </main>
+  <script src="./ledger-data.js"></script>
+  <script>
+  (function() {
+    var mount = document.getElementById('ledger-collapsible-mount');
+    var data = window.HARNESS_LEDGER;
+    if (!mount || !data) return;
+    var sections = [
+      ['ledger_integrity', '账本数字签名与容量边界 (ledger_integrity)'],
+      ['freeze_anchor', '冻结代码与题集 SHA-256 字典 (freeze_anchor)'],
+      ['artifact_tree_receipts', '11 项原始实验树完整哈希 (artifact_tree_receipts)'],
+      ['replication_v2', '324 次配对主基准聚合与协议对账 (replication_v2)'],
+      ['diagnostics_and_probes', '四阶段时钟、缓存量化与探针 (diagnostics_and_probes)'],
+      ['nextgen_modules', '控制面扩展实证汇总 M1A–M6 (nextgen_modules)'],
+      ['post_training', '后训练 SFT 与偏好对导出统计 (post_training)'],
+      ['representative_stepper_slices', '交互台脱敏轨迹切片 (representative_stepper_slices)']
+    ];
+    var html = '';
+    for (var i = 0; i < sections.length; i++) {
+      var key = sections[i][0];
+      var title = sections[i][1];
+      var openAttr = i === 0 ? ' open' : '';
+      var jsonTxt = JSON.stringify(data[key], null, 2)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      html += '<details class="ledger-details"' + openAttr + '>' +
+        '<summary>' + title + '</summary><pre>' + jsonTxt + '</pre></details>';
+    }
+    mount.innerHTML = html;
+  })();
+  </script>
+</body>
+</html>

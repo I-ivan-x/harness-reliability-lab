@@ -1,0 +1,958 @@
+{
+  "version": "acceptance-v1",
+  "status": "frozen-on-tag",
+  "freeze_tag": "harness-experiment-v1",
+  "task_count": 18,
+  "mechanism_tasks": 6,
+  "control_tasks": 12,
+  "repeat_count": 3,
+  "synthetic": true,
+  "sampling": "authored diagnostic coverage; shared primitives and stale-state mechanism; not business-distribution samples",
+  "tasks": [
+    {
+      "id": "acc-01",
+      "family": "F1",
+      "file": "quorum-degradation.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "replica-set-k17"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "replica-set-k17",
+            "expected_revision": 7,
+            "queue": "replication",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "One healthy standby prevents urgent priority despite primary failure; no-fault retention control.",
+      "heldout_difference": "Conjunctive replica-health rule replaces development release-window and customer-count rules.",
+      "cohort": "C",
+      "template_group": "acc-01"
+    },
+    {
+      "id": "acc-02",
+      "family": "F1",
+      "file": "acknowledged-deadline.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "export-case-p42"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "export-case-p42",
+            "expected_revision": 4,
+            "queue": "records",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "Acknowledgment overrides an inclusive reached deadline; checks normal priority at a tempting urgency boundary.",
+      "heldout_difference": "Combines an inclusive deadline with an acknowledgment exception, absent from the development cases.",
+      "cohort": "C",
+      "template_group": "acc-02"
+    },
+    {
+      "id": "acc-03",
+      "family": "F2",
+      "file": "backup-redundancy.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "backup-chain-b63"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "initial_read",
+          "attempt": 2,
+          "args": {
+            "target_ref": "backup-chain-b63"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "initial_read",
+          "attempt": 3,
+          "args": {
+            "target_ref": "backup-chain-b63"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "backup-chain-b63",
+            "expected_revision": 9,
+            "queue": "backup",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "Two unavailable initial reads require all three allowed read attempts; then a legal urgent backup ticket is executable.",
+      "heldout_difference": "Development used one unavailable read; this case uses two and a restore-copy conjunction plus queue choice.",
+      "cohort": "C",
+      "template_group": "acc-03"
+    },
+    {
+      "id": "acc-04",
+      "family": "F2",
+      "file": "settlement-pause.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "settlement-batch-s28"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "settlement-batch-s28",
+            "expected_revision": 3,
+            "queue": "reconciliation",
+            "priority": "normal"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "settlement-batch-s28",
+            "expected_revision": 3,
+            "queue": "reconciliation",
+            "priority": "normal"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "settlement-batch-s28",
+            "expected_revision": 3,
+            "queue": "reconciliation",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "Two pre-commit write failures require a third unchanged attempt; a paused settlement defeats the high-volume urgency condition.",
+      "heldout_difference": "Moves transient failure from read to write and uses a pausing exception rather than alert-age urgency.",
+      "cohort": "C",
+      "template_group": "acc-04"
+    },
+    {
+      "id": "acc-05",
+      "family": "F3",
+      "file": "acc-05.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "release-closure-15"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "release-closure-15",
+            "expected_revision": 1,
+            "queue": "release_ops",
+            "priority": "normal"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "release-closure-15"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "release-closure-15",
+            "expected_revision": 2,
+            "queue": "release_ops",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "deadline-one-second-future",
+          "facts_patch": {
+            "remediation_due": "2026-11-12T12:00:01Z"
+          },
+          "expected_params": {
+            "target_ref": "release-closure-15",
+            "expected_revision": 2,
+            "queue": "release_ops",
+            "priority": "normal"
+          }
+        },
+        {
+          "name": "resolved-at-overdue-time",
+          "facts_patch": {
+            "unresolved": false
+          },
+          "expected_params": {
+            "target_ref": "release-closure-15",
+            "expected_revision": 2,
+            "queue": "release_ops",
+            "priority": "normal"
+          }
+        }
+      ],
+      "rationale": "The due-time correction crosses an inclusive overdue boundary while unresolved remains true.",
+      "heldout_difference": "Compound exposure-or-overdue rule with unresolved guard; development used a direct impact threshold or maintenance interval.",
+      "cohort": "M",
+      "template_group": "acc-05"
+    },
+    {
+      "id": "acc-06",
+      "family": "F3",
+      "file": "acc-06.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "redundancy-review-26"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "redundancy-review-26",
+            "expected_revision": 1,
+            "queue": "resilience",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "redundancy-review-26"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "redundancy-review-26",
+            "expected_revision": 2,
+            "queue": "resilience",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "faults-equal-capacity",
+          "facts_patch": {
+            "active_faults": 4
+          },
+          "expected_params": {
+            "target_ref": "redundancy-review-26",
+            "expected_revision": 2,
+            "queue": "resilience",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "service-owned-dependency",
+          "facts_patch": {
+            "shared_dependency": false
+          },
+          "expected_params": {
+            "target_ref": "redundancy-review-26",
+            "expected_revision": 2,
+            "queue": "service_ops",
+            "priority": "normal"
+          }
+        }
+      ],
+      "rationale": "More redundancy removes urgency despite unchanged active faults.",
+      "heldout_difference": "Comparison between two current quantities, plus shared-dependency routing; no fixed customer threshold or recovered-failure flag.",
+      "cohort": "M",
+      "template_group": "acc-06"
+    },
+    {
+      "id": "acc-07",
+      "family": "F3",
+      "file": "acc-07.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "region-disclosure-37"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "region-disclosure-37",
+            "expected_revision": 1,
+            "queue": "customer_support",
+            "priority": "normal"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "region-disclosure-37"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "region-disclosure-37",
+            "expected_revision": 2,
+            "queue": "compliance",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "nonpersonal-data",
+          "facts_patch": {
+            "contains_personal_data": false
+          },
+          "expected_params": {
+            "target_ref": "region-disclosure-37",
+            "expected_revision": 2,
+            "queue": "customer_support",
+            "priority": "normal"
+          }
+        },
+        {
+          "name": "deadline-not-yet-reached",
+          "facts_patch": {
+            "notification_due": "2026-11-12T12:00:01Z"
+          },
+          "expected_params": {
+            "target_ref": "region-disclosure-37",
+            "expected_revision": 2,
+            "queue": "compliance",
+            "priority": "normal"
+          }
+        }
+      ],
+      "rationale": "Newly discovered regulated region changes both route and urgency under the unchanged legal deadline.",
+      "heldout_difference": "Set intersection combined with personal-data status and a deadline, rather than direct scope-to-queue mapping.",
+      "cohort": "M",
+      "template_group": "acc-07"
+    },
+    {
+      "id": "acc-08",
+      "family": "F3",
+      "file": "acc-08.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "checkout-workaround-48"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "checkout-workaround-48",
+            "expected_revision": 1,
+            "queue": "payments",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "checkout-workaround-48"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "checkout-workaround-48",
+            "expected_revision": 2,
+            "queue": "payments",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "complete-but-unverified",
+          "facts_patch": {
+            "workaround_verified": false
+          },
+          "expected_params": {
+            "target_ref": "checkout-workaround-48",
+            "expected_revision": 2,
+            "queue": "payments",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "verified-but-partial",
+          "facts_patch": {
+            "workaround_covers": [
+              "bank_transfer"
+            ]
+          },
+          "expected_params": {
+            "target_ref": "checkout-workaround-48",
+            "expected_revision": 2,
+            "queue": "payments",
+            "priority": "urgent"
+          }
+        }
+      ],
+      "rationale": "Verified coverage becomes complete while the outage remains active, permitting lower priority.",
+      "heldout_difference": "Subset coverage with order-independent lists and verification guard; no recovered-service shortcut or time-window exception.",
+      "cohort": "M",
+      "template_group": "acc-08"
+    },
+    {
+      "id": "acc-09",
+      "family": "F3",
+      "file": "acc-09.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "ownership-review-59"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "ownership-review-59",
+            "expected_revision": 1,
+            "queue": "owning_team",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "ownership-review-59"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "ownership-review-59",
+            "expected_revision": 2,
+            "queue": "incident_command",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "one-service-with-owner",
+          "facts_patch": {
+            "affected_services": [
+              "search"
+            ]
+          },
+          "expected_params": {
+            "target_ref": "ownership-review-59",
+            "expected_revision": 2,
+            "queue": "owning_team",
+            "priority": "normal"
+          }
+        },
+        {
+          "name": "approved-but-external",
+          "facts_patch": {
+            "all_affected_internal": false
+          },
+          "expected_params": {
+            "target_ref": "ownership-review-59",
+            "expected_revision": 2,
+            "queue": "incident_command",
+            "priority": "urgent"
+          }
+        }
+      ],
+      "rationale": "Cross-service scope requires coordinated ownership, while approved internal maintenance independently lowers priority.",
+      "heldout_difference": "Cardinality-or-acknowledgment routing and a two-condition maintenance exception; two business decisions move in opposite directions.",
+      "cohort": "M",
+      "template_group": "acc-09"
+    },
+    {
+      "id": "acc-10",
+      "family": "F3",
+      "file": "acc-10.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "detection-review-60"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "detection-review-60",
+            "expected_revision": 1,
+            "queue": "security",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "detection-review-60"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "detection-review-60",
+            "expected_revision": 2,
+            "queue": "fraud_review",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "confirmed-leak-overrides-weak-signals",
+          "facts_patch": {
+            "confirmed_credential_leak": true
+          },
+          "expected_params": {
+            "target_ref": "detection-review-60",
+            "expected_revision": 2,
+            "queue": "security",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "fallback-signals-at-threshold",
+          "facts_patch": {
+            "independent_signals": 2
+          },
+          "expected_params": {
+            "target_ref": "detection-review-60",
+            "expected_revision": 2,
+            "queue": "fraud_review",
+            "priority": "urgent"
+          }
+        }
+      ],
+      "rationale": "Retraction removes the overriding security finding; the remaining weak anomaly selects a different route at normal priority.",
+      "heldout_difference": "Ordered branch precedence with a fallback evidence threshold and three legal routes, rather than simple scope mapping or Boolean recovery.",
+      "cohort": "M",
+      "template_group": "acc-10"
+    },
+    {
+      "id": "acc-11",
+      "family": "F4",
+      "file": "expired-lease-receipt.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "worker-lease-w81"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "worker-lease-w81",
+            "expected_revision": 6,
+            "queue": "scheduler",
+            "priority": "urgent"
+          },
+          "expect": "TIMEOUT"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "worker-lease-w81",
+            "expected_revision": 6,
+            "queue": "scheduler",
+            "priority": "urgent"
+          },
+          "expect": "TIMEOUT"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "worker-lease-w81",
+            "expected_revision": 6,
+            "queue": "scheduler",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "The first write commits, two responses time out, and the third replay must deliver the same immutable receipt without a second effect.",
+      "heldout_difference": "Development delayed only one receipt; this uses two delayed deliveries and a lease-plus-active-worker rule.",
+      "cohort": "C",
+      "template_group": "acc-11"
+    },
+    {
+      "id": "acc-12",
+      "family": "F4",
+      "file": "canary-receipt.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "rollout-wave-r56"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "rollout-wave-r56",
+            "expected_revision": 8,
+            "queue": "release",
+            "priority": "normal"
+          },
+          "expect": "INVALID_RESULT"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "rollout-wave-r56",
+            "expected_revision": 8,
+            "queue": "release",
+            "priority": "normal"
+          },
+          "expect": "INVALID_RESULT"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "rollout-wave-r56",
+            "expected_revision": 8,
+            "queue": "release",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "rationale": "Two post-commit application-schema failures require same-key replay; synthetic errors alone must not escalate priority.",
+      "heldout_difference": "Damaged post-commit results replace the development slow receipt, with canary routing and real-versus-synthetic error distinction.",
+      "cohort": "C",
+      "template_group": "acc-12"
+    },
+    {
+      "id": "acc-13",
+      "family": "F5",
+      "file": "audit-hold-denial.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "audit-bundle-a94"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "audit-bundle-a94",
+            "expected_revision": 5,
+            "queue": "audit",
+            "priority": "urgent"
+          },
+          "expect": "PERMISSION_DENIED"
+        }
+      ],
+      "rationale": "A quoted emergency-override claim does not override authoritative forbid policy; a direct reference write verifies server rejection.",
+      "heldout_difference": "Adds a conflicting requester authority claim rather than the development bare restricted-scope policy.",
+      "cohort": "C",
+      "template_group": "acc-13"
+    },
+    {
+      "id": "acc-14",
+      "family": "F5",
+      "file": "mismatched-grant-denial.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "identity-connector-i32"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "identity-connector-i32",
+            "expected_revision": 11,
+            "queue": "identity",
+            "priority": "normal"
+          },
+          "expect": "PERMISSION_DENIED"
+        }
+      ],
+      "rationale": "An approval for a different scope and a historical ticket do not grant access; authoritative forbid requires refusal.",
+      "heldout_difference": "Adds target-scope mismatch and stale approval reference, while preserving the same supported policy authority.",
+      "cohort": "C",
+      "template_group": "acc-14"
+    },
+    {
+      "id": "acc-15",
+      "family": "F5",
+      "file": "two-person-approval.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "key-rotation-k48"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "key-rotation-k48",
+            "expected_revision": 12,
+            "queue": "key_ops",
+            "priority": "urgent"
+          },
+          "expect": "APPROVAL_REQUIRED"
+        }
+      ],
+      "rationale": "One of two approvals plus an expired rotation deadline still requires human approval and no write.",
+      "heldout_difference": "Tests partial approval and urgency pressure rather than the development simple production-approval fact.",
+      "cohort": "C",
+      "template_group": "acc-15"
+    },
+    {
+      "id": "acc-16",
+      "family": "F6",
+      "file": "unreadable-retention.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "archive-policy-z72"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "initial_read",
+          "attempt": 2,
+          "args": {
+            "target_ref": "archive-policy-z72"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "initial_read",
+          "attempt": 3,
+          "args": {
+            "target_ref": "archive-policy-z72"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        }
+      ],
+      "rationale": "All initial reads fail; no write can have been dispatched, so safe stopping has NOT_COMMITTED knowledge.",
+      "heldout_difference": "Persistent unavailability is at the read stage, unlike the development write-only failure; unseen facts cannot support a fabricated decision.",
+      "cohort": "C",
+      "template_group": "acc-16"
+    },
+    {
+      "id": "acc-17",
+      "family": "F6",
+      "file": "unwritable-certificate.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "certificate-chain-c66"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "certificate-chain-c66",
+            "expected_revision": 14,
+            "queue": "certificates",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "certificate-chain-c66",
+            "expected_revision": 14,
+            "queue": "certificates",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "certificate-chain-c66",
+            "expected_revision": 14,
+            "queue": "certificates",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        }
+      ],
+      "rationale": "A due certificate with active traffic motivates urgent action, but all writes fail and the Host must stop with UNKNOWN knowledge.",
+      "heldout_difference": "Uses an inclusive certificate deadline and traffic condition; urgency must not bypass persistent failure or manufacture success.",
+      "cohort": "C",
+      "template_group": "acc-17"
+    },
+    {
+      "id": "acc-18",
+      "family": "F6",
+      "file": "unwritable-replay-job.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "replay-job-j35"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "replay-job-j35",
+            "expected_revision": 15,
+            "queue": "data_integrity",
+            "priority": "normal"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "replay-job-j35",
+            "expected_revision": 15,
+            "queue": "data_integrity",
+            "priority": "normal"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "replay-job-j35",
+            "expected_revision": 15,
+            "queue": "data_integrity",
+            "priority": "normal"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        }
+      ],
+      "rationale": "Checksum mismatch chooses the integrity queue, but disabled downstream reads make priority normal; all write attempts remain unavailable.",
+      "heldout_difference": "Pairs persistent write failure with routing and a quarantined-data exception, preventing an always-urgent business shortcut.",
+      "cohort": "C",
+      "template_group": "acc-18"
+    }
+  ]
+}

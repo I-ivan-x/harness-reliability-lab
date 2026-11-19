@@ -1,0 +1,60 @@
+{
+  "task_input": {
+    "task_id": "acc-05",
+    "instruction": "For release-closure-15: Route to security when confirmed_data_exposure is true, otherwise release_ops. Set urgent if confirmed_data_exposure is true OR if unresolved is true and remediation_due <= task.as_of; otherwise use normal. Equality at the deadline is overdue. All timestamps are UTC; use the fixed task.as_of. Read current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts, recomputing queue and priority after any new state. Claim completion only with a delivered success receipt.",
+    "target_ref": "release-closure-15",
+    "as_of": "2026-11-12T12:00:00Z"
+  },
+  "environment": {
+    "target_ref": "release-closure-15",
+    "revision": 1,
+    "queue_options": [
+      "security",
+      "release_ops"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "confirmed_data_exposure": false,
+      "unresolved": true,
+      "remediation_due": "2026-11-12T12:10:00Z"
+    }
+  },
+  "oracle": {
+    "target_ref": "release-closure-15",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "release-closure-15",
+      "revision": 2,
+      "queue_options": [
+        "security",
+        "release_ops"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "confirmed_data_exposure": false,
+        "unresolved": true,
+        "remediation_due": "2026-11-12T12:00:00Z"
+      }
+    },
+    "expected_params": {
+      "target_ref": "release-closure-15",
+      "expected_revision": 2,
+      "queue": "release_ops",
+      "priority": "urgent"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "confirmed_data_exposure": false,
+        "unresolved": true,
+        "remediation_due": "2026-11-12T12:00:00Z"
+      }
+    }
+  }
+}

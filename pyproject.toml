@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "harness-reliability-lab"
+version = "0.1.0"
+description = "A minimal agent harness for paired tool-recovery reliability experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28,<1",
+    "mcp>=1.20,<2",
+    "pydantic>=2.12,<3",
+]
+
+[project.scripts]
+harness-lab = "harness_lab.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8,<10",
+    "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/harness_lab"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib --strict-config --strict-markers -ra"
+norecursedirs = [".venv", "artifacts", ".git"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

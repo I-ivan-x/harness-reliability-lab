@@ -1,0 +1,501 @@
+{
+  "status": "development-only",
+  "repeat_count": 1,
+  "description": "Ten diagnostic tasks; oracle-aware protocol references and contrasts are environment checks, never controller inputs or independent benchmark tasks.",
+  "tasks": [
+    {
+      "id": "dev-01",
+      "family": "F1",
+      "file": "routine-window.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-01"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-01",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ]
+    },
+    {
+      "id": "dev-02",
+      "family": "F2",
+      "file": "aging-alert.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-02"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "initial_read",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-02"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-02",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ]
+    },
+    {
+      "id": "dev-03",
+      "family": "F3",
+      "file": "impact-threshold.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-03"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-03",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "normal"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-03"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-03",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "below-threshold",
+          "facts_patch": {
+            "impacted_customers": 4
+          },
+          "expected_params": {
+            "target_ref": "change-03",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "normal"
+          }
+        },
+        {
+          "name": "at-threshold",
+          "facts_patch": {
+            "impacted_customers": 5
+          },
+          "expected_params": {
+            "target_ref": "change-03",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dev-04",
+      "family": "F3",
+      "file": "restored-service.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-04"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-04",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-04"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-04",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "failure-still-active",
+          "facts_patch": {
+            "active_failure": true
+          },
+          "expected_params": {
+            "target_ref": "change-04",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "no-customer-impact",
+          "facts_patch": {
+            "active_failure": true,
+            "customer_impact": false
+          },
+          "expected_params": {
+            "target_ref": "change-04",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dev-05",
+      "family": "F3",
+      "file": "scope-routing.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-05"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-05",
+            "expected_revision": 1,
+            "queue": "global_ops",
+            "priority": "normal"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-05"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-05",
+            "expected_revision": 2,
+            "queue": "regional_ops",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "global-scope",
+          "facts_patch": {
+            "scope": "global"
+          },
+          "expected_params": {
+            "target_ref": "change-05",
+            "expected_revision": 2,
+            "queue": "global_ops",
+            "priority": "normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dev-06",
+      "family": "F3",
+      "file": "timed-exception.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-06"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-06",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "STALE_REVISION"
+        },
+        {
+          "stage": "refresh_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-06"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-06",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "normal"
+          },
+          "expect": "receipt"
+        }
+      ],
+      "contrasts": [
+        {
+          "name": "end-is-exclusive",
+          "facts_patch": {
+            "exception_end": "2026-11-07T04:00:00Z"
+          },
+          "expected_params": {
+            "target_ref": "change-06",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "wrong-exception-scope",
+          "facts_patch": {
+            "exception_scope": "catalog"
+          },
+          "expected_params": {
+            "target_ref": "change-06",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "not-started",
+          "facts_patch": {
+            "exception_start": "2026-11-07T04:00:01Z"
+          },
+          "expected_params": {
+            "target_ref": "change-06",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "urgent"
+          }
+        },
+        {
+          "name": "start-is-inclusive",
+          "facts_patch": {
+            "exception_start": "2026-11-07T04:00:00Z"
+          },
+          "expected_params": {
+            "target_ref": "change-06",
+            "expected_revision": 2,
+            "queue": "ops",
+            "priority": "normal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dev-07",
+      "family": "F4",
+      "file": "latency-incident.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-07"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-07",
+            "expected_revision": 1,
+            "queue": "platform",
+            "priority": "urgent"
+          },
+          "expect": "TIMEOUT"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-07",
+            "expected_revision": 1,
+            "queue": "platform",
+            "priority": "urgent"
+          },
+          "expect": "receipt"
+        }
+      ]
+    },
+    {
+      "id": "dev-08",
+      "family": "F5",
+      "file": "restricted-change.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-08"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-08",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "normal"
+          },
+          "expect": "PERMISSION_DENIED"
+        }
+      ]
+    },
+    {
+      "id": "dev-09",
+      "family": "F5",
+      "file": "approval-change.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-09"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-09",
+            "expected_revision": 1,
+            "queue": "platform",
+            "priority": "urgent"
+          },
+          "expect": "APPROVAL_REQUIRED"
+        }
+      ]
+    },
+    {
+      "id": "dev-10",
+      "family": "F6",
+      "file": "unavailable-backend.json",
+      "reference": [
+        {
+          "stage": "initial_read",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-10"
+          },
+          "expect": "state"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 1,
+          "args": {
+            "target_ref": "change-10",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 2,
+          "args": {
+            "target_ref": "change-10",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        },
+        {
+          "stage": "write-0",
+          "attempt": 3,
+          "args": {
+            "target_ref": "change-10",
+            "expected_revision": 1,
+            "queue": "ops",
+            "priority": "urgent"
+          },
+          "expect": "TEMPORARY_UNAVAILABLE"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "task_input": {
+    "task_id": "dev-06",
+    "instruction": "For change-06: Use queue ops. Priority is urgent when service_affected is true, except that a maintenance exception requires normal priority if exception_scope equals scope and exception_start <= task.as_of < exception_end. The start is inclusive and the end is exclusive; all timestamps are UTC. When service_affected is false, use normal. Evaluate these rules from current facts and the fixed task.as_of, never the machine clock. Read the current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts. Never claim completion without citing a delivered success receipt.",
+    "target_ref": "change-06",
+    "as_of": "2026-11-07T04:00:00Z"
+  },
+  "environment": {
+    "target_ref": "change-06",
+    "revision": 1,
+    "queue_options": [
+      "ops",
+      "platform"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "service_affected": true,
+      "scope": "payments",
+      "exception_scope": "payments",
+      "exception_start": "2026-11-07T03:00:00Z",
+      "exception_end": "2026-11-07T04:00:00Z"
+    }
+  },
+  "oracle": {
+    "target_ref": "change-06",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "change-06",
+      "revision": 2,
+      "queue_options": [
+        "ops",
+        "platform"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "service_affected": true,
+        "scope": "payments",
+        "exception_scope": "payments",
+        "exception_start": "2026-11-07T03:00:00Z",
+        "exception_end": "2026-11-07T05:00:00Z"
+      }
+    },
+    "expected_params": {
+      "target_ref": "change-06",
+      "expected_revision": 2,
+      "queue": "ops",
+      "priority": "normal"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "service_affected": true,
+        "scope": "payments",
+        "exception_scope": "payments",
+        "exception_start": "2026-11-07T03:00:00Z",
+        "exception_end": "2026-11-07T05:00:00Z"
+      }
+    }
+  }
+}

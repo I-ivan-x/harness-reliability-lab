@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 340" width="1040" height="340" role="img" aria-label="Control-plane trust boundary and three-state side-effect recovery architecture">
+  <rect x="0.5" y="0.5" width="1039" height="339" rx="2" fill="#FAF9F5" stroke="#E5E2D9" stroke-width="1"/>
+  <rect x="12" y="12" width="1016" height="316" rx="2" fill="#F3F1EA" stroke="#E5E2D9" stroke-width="1"/>
+
+  <!-- Zone Headers -->
+  <text x="32" y="38" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" font-weight="600" fill="#5E5D59" letter-spacing="0.06em">UNTRUSTED PROPOSAL ZONE</text>
+  <text x="292" y="38" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" font-weight="600" fill="#B85A3A" letter-spacing="0.06em">DETERMINISTIC HOST CONTROL PLANE (EXCLUSIVE AUTHORITY)</text>
+  <text x="766" y="38" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" font-weight="600" fill="#1F5E3B" letter-spacing="0.06em">ISOLATED MCP SANDBOX</text>
+
+  <!-- Vertical Trust Boundary Dividers -->
+  <line x1="272" y1="24" x2="272" y2="314" stroke="#B85A3A" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="748" y1="24" x2="748" y2="314" stroke="#C9C5B8" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Left Card: Untrusted LLM Controller -->
+  <rect x="28" y="54" width="224" height="156" rx="2" fill="#FFFFFF" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="42" y="78" font-family="Source Serif 4, Georgia, Noto Serif SC, serif" font-size="14" font-weight="600" fill="#141413">LLM Controller</text>
+  <text x="42" y="98" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#5E5D59">public_tools() only</text>
+  <line x1="42" y1="108" x2="238" y2="108" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="42" y="128" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#141413">可见业务参数：</text>
+  <text x="42" y="146" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#5E5D59">read_state(target_ref)</text>
+  <text x="42" y="164" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#5E5D59">create_ticket(expected_rev..)</text>
+  <rect x="42" y="176" width="196" height="22" rx="2" fill="#F6EAEB" stroke="#9E2A2B" stroke-width="0.75"/>
+  <text x="50" y="191" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#9E2A2B">无身份凭证 · 无槽位覆写权</text>
+
+  <!-- Left Bottom Card: Public Task Input -->
+  <rect x="28" y="224" width="224" height="84" rx="2" fill="#FFFFFF" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="42" y="246" font-family="JetBrains Mono, Consolas, monospace" font-size="11.5" font-weight="600" fill="#141413">TaskInput (Public)</text>
+  <text x="42" y="266" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11.5" fill="#5E5D59">锁定 target_ref 与只读指令</text>
+  <text x="42" y="286" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11.5" fill="#8C8A84">零评测私有判定准则注入</text>
+
+  <!-- Center Top: 4-Stage Host Gate & Wire Envelope -->
+  <rect x="292" y="54" width="436" height="114" rx="2" fill="#FFFFFF" stroke="#C9C5B8" stroke-width="1"/>
+  <text x="308" y="77" font-family="Source Serif 4, Georgia, Noto Serif SC, serif" font-size="14" font-weight="600" fill="#141413">Host Gate &amp; Protected Wire Envelope</text>
+  <text x="580" y="77" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#1F5E3B">606 valid / 0 invalid</text>
+  <line x1="308" y1="87" x2="712" y2="87" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="308" y="107" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#141413">1. 四维门禁：Schema 单调性 · target_ref 锁定 · 主体读写授权 · 阶段状态机</text>
+  <text x="308" y="127" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#141413">2. 线缆注入：宿主独占主体身份、固定单写槽位、幂等令牌与单调时钟截止复核</text>
+  <text x="308" y="147" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#5E5D59">3. 数据面防护：Spotlighting 定界隔离 + SHA-256 动作状态指纹熔断</text>
+
+  <!-- Center Bottom: Epistemic 3-State & P0/P1/P2 Recovery Matrix -->
+  <rect x="292" y="182" width="436" height="126" rx="2" fill="#FFFFFF" stroke="#C9C5B8" stroke-width="1"/>
+  <text x="308" y="205" font-family="Source Serif 4, Georgia, Noto Serif SC, serif" font-size="14" font-weight="600" fill="#141413">Side-Effect 3-State Machine (P0 / P1 / P2)</text>
+  <line x1="308" y1="215" x2="712" y2="215" stroke="#E5E2D9" stroke-width="1"/>
+
+  <rect x="308" y="226" width="124" height="68" rx="2" fill="#FAF9F5" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="318" y="244" font-family="JetBrains Mono, Consolas, monospace" font-size="11" font-weight="600" fill="#5E5D59">NOT_COMMITTED</text>
+  <text x="318" y="262" font-family="JetBrains Mono, Consolas, monospace" font-size="10.2" fill="#141413">certified_unbound</text>
+  <text x="318" y="280" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#1F5E3B">自动刷新 + 单次重提</text>
+
+  <rect x="448" y="226" width="124" height="68" rx="2" fill="#F7EFE4" stroke="#945814" stroke-width="0.8"/>
+  <text x="458" y="244" font-family="JetBrains Mono, Consolas, monospace" font-size="11" font-weight="600" fill="#945814">UNKNOWN</text>
+  <text x="458" y="262" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#141413">本地超时 / 迟到回执</text>
+  <text x="458" y="280" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#945814">锁定原键原参重放</text>
+
+  <rect x="588" y="226" width="124" height="68" rx="2" fill="#EBF3EE" stroke="#1F5E3B" stroke-width="0.8"/>
+  <text x="598" y="244" font-family="JetBrains Mono, Consolas, monospace" font-size="11" font-weight="600" fill="#1F5E3B">CONFIRMED</text>
+  <text x="598" y="262" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#141413">回执已交付 / 断电对账</text>
+  <text x="598" y="280" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11" fill="#1F5E3B">封存写槽位进入终态</text>
+
+  <!-- Right Top: MCP Tool Server / WarmWorkerPool -->
+  <rect x="766" y="54" width="246" height="114" rx="2" fill="#FFFFFF" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="780" y="77" font-family="Source Serif 4, Georgia, Noto Serif SC, serif" font-size="14" font-weight="600" fill="#141413">MCP Server &amp; Warm Pool</text>
+  <line x1="780" y1="87" x2="998" y2="87" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="780" y="107" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#141413">独立复核权限与乐观锁版本</text>
+  <text x="780" y="127" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#1F5E3B">1.5663s → 13.8ms (-99.12%)</text>
+  <text x="780" y="147" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11.5" fill="#5E5D59">双阈值看门狗强杀与零泄漏替补</text>
+
+  <!-- Right Bottom: Isolated SQLite WAL Sandbox -->
+  <rect x="766" y="182" width="246" height="126" rx="2" fill="#FFFFFF" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="780" y="205" font-family="Source Serif 4, Georgia, Noto Serif SC, serif" font-size="14" font-weight="600" fill="#141413">SQLite WAL Sandbox</text>
+  <line x1="780" y1="215" x2="998" y2="215" stroke="#E5E2D9" stroke-width="1"/>
+  <text x="780" y="236" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#141413">BEGIN IMMEDIATE 短事务</text>
+  <text x="780" y="256" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="12" fill="#141413">tickets / receipts 不可变触发器</text>
+  <text x="780" y="276" font-family="Inter, -apple-system, PingFang SC, sans-serif" font-size="11.5" fill="#1F5E3B">断电唤醒 ?mode=ro 只读回执对账</text>
+  <text x="780" y="295" font-family="JetBrains Mono, Consolas, monospace" font-size="11" fill="#5E5D59">duplicate_effect = 0 / 324</text>
+
+  <!-- Directed Connectors -->
+  <line x1="252" y1="112" x2="290" y2="112" stroke="#B85A3A" stroke-width="1.5"/>
+  <polygon points="292,112 285,108 285,116" fill="#B85A3A"/>
+  <line x1="728" y1="112" x2="764" y2="112" stroke="#1F5E3B" stroke-width="1.5"/>
+  <polygon points="766,112 759,108 759,116" fill="#1F5E3B"/>
+  <line x1="889" y1="168" x2="889" y2="180" stroke="#5E5D59" stroke-width="1.2"/>
+  <polygon points="889,182 885,175 893,175" fill="#5E5D59"/>
+</svg>

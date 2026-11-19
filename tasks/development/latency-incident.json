@@ -1,0 +1,52 @@
+{
+  "task_input": {
+    "task_id": "dev-07",
+    "instruction": "For change-07: Use queue platform. Priority is urgent when p95_ms is at least 250, otherwise normal. Read the current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts. Never claim completion without citing a delivered success receipt.",
+    "target_ref": "change-07",
+    "as_of": "2026-11-07T04:00:00Z"
+  },
+  "environment": {
+    "target_ref": "change-07",
+    "revision": 1,
+    "queue_options": [
+      "ops",
+      "platform"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "p95_ms": 310
+    }
+  },
+  "oracle": {
+    "target_ref": "change-07",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "change-07",
+      "revision": 1,
+      "queue_options": [
+        "ops",
+        "platform"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "p95_ms": 310
+      }
+    },
+    "expected_params": {
+      "target_ref": "change-07",
+      "expected_revision": 1,
+      "queue": "platform",
+      "priority": "urgent"
+    }
+  },
+  "fault_plan": {
+    "kind": "commit_response_delay",
+    "stage": "write-0",
+    "attempts": [
+      1
+    ],
+    "delay_s": 0.4
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "task_input": {
+    "task_id": "acc-10",
+    "instruction": "For detection-review-60: A confirmed_credential_leak takes precedence: route to security and set urgent. Without a confirmed leak, route to fraud_review when payment_pattern_match is true, otherwise general_ops. In that no-leak branch, priority is urgent only when anomaly_active is true AND independent_signals >= 2; otherwise use normal. A retracted leak must not retain the security route or override the remaining evidence rule. Read current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts, recomputing queue and priority after any new state. Claim completion only with a delivered success receipt.",
+    "target_ref": "detection-review-60",
+    "as_of": "2026-11-12T12:00:00Z"
+  },
+  "environment": {
+    "target_ref": "detection-review-60",
+    "revision": 1,
+    "queue_options": [
+      "general_ops",
+      "fraud_review",
+      "security"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "confirmed_credential_leak": true,
+      "payment_pattern_match": true,
+      "anomaly_active": true,
+      "independent_signals": 3
+    }
+  },
+  "oracle": {
+    "target_ref": "detection-review-60",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "detection-review-60",
+      "revision": 2,
+      "queue_options": [
+        "general_ops",
+        "fraud_review",
+        "security"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "confirmed_credential_leak": false,
+        "payment_pattern_match": true,
+        "anomaly_active": true,
+        "independent_signals": 1
+      }
+    },
+    "expected_params": {
+      "target_ref": "detection-review-60",
+      "expected_revision": 2,
+      "queue": "fraud_review",
+      "priority": "normal"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "confirmed_credential_leak": false,
+        "payment_pattern_match": true,
+        "anomaly_active": true,
+        "independent_signals": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工程纪律契约 (AGENTS) — Harness Reliability Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <nav class="companion-nav" aria-label="配套文档导航">
+    <div class="companion-nav-inner">
+      <a class="companion-return" href="./index.html">← 返回五幕交互专著</a>
+      <div class="companion-tabs"><a href="./overview.html">仓库导览与速查表 (README)</a><a href="./architecture.html">控制面与协议规范 (Architecture)</a><a href="./evaluation.html">实证评估报告 (Evaluation)</a><a href="./ledger.html">公开证据账本 (Ledger)</a><a href="./agents.html" class="active">工程纪律契约 (AGENTS)</a></div>
+    </div>
+  </nav>
+  <main class="doc-shell">
+    <div class="doc-meta-bar">STATIC MONOGRAPH COMPANION · COMPILED FROM AGENTS.md</div>
+    <article class="doc-article">
+<h1 id="sec-1-agents-md">AGENTS.md — 工程纪律与证据完整性契约</h1>
+<p>本文档规定 Harness Reliability Lab 的离线核验命令、单向依赖边界、冻结资产只读纪律、模拟优先测试准则及 16 项负向脱敏红线。配套文档见 <a href="./index.html">五幕交互专著</a>、<a href="./overview.html">仓库导览与速查表</a>、<a href="./architecture.html">控制面与协议规范</a> 与 <a href="./evaluation.html">实证评估报告</a>。</p>
+<h2 id="sec-2-1-api-env">1. 命令优先的零密钥离线核验（零外部 API 调用 / 零 <code>.env</code>）</h2>
+<p>所有检查均在仓库根目录下使用锁定依赖与 <code>--no-env-file</code> 执行：</p>
+<pre class="doc-code"><code class="language-bash">uv sync --frozen --group dev
+uv run --frozen --no-env-file ruff check --config pyproject.toml .
+uv run --frozen --no-env-file harness-lab doctor
+uv run --frozen --no-env-file pytest -c pyproject.toml
+uv run --frozen --no-env-file python -m evals.verify_all --export-ledger
+uv run --frozen --no-env-file python -m evals.verify_all --ci</code></pre>
+<ul><li><code>--export-ledger</code>：面向本地完整 <code>artifacts/</code> 目录执行深审（SHA-256 树哈希对账、<code>324</code> 次 <code>replication-v2</code> 独立重评分与协议/门禁复核、后训练与 <code>M1–M6</code> 扩展不变量核验、递归脱敏扫描），并原子导出 <code>evals/evidence_ledger.json</code>（<code>&lt;= 150 KB</code>）、<code>site/ledger-data.js</code> 及五份静态配套阅读页。</li><li><code>--ci</code>：面向干净克隆环境的免产物核验，不依赖 <code>artifacts/</code> 目录与任何 <code>.env</code> 凭证。</li></ul>
+<h2 id="sec-3-2">2. 运行时与评测层的单向导入边界</h2>
+<ul><li><strong>运行时核心层（<code>src/harness_lab/*</code>）</strong>：仅包含 <code>contracts</code>、<code>mcp_port</code>、<code>models</code>、<code>runtime</code>、<code>storage</code>、<code>timing</code>、<code>tool_server</code>、<code>trace</code> 与 <code>cli</code> 九个模块，严禁反向导入 <code>evals</code>、<code>tests</code>、历史 <code>app</code> 或 <code>scripts</code>。</li><li><strong>评测与审计层（<code>evals/*</code>、<code>tests/*</code>）</strong>：仅可调用 <code>harness_lab</code> 公开接口，依赖方向严格限定为 <code>evals / tests → harness_lab</code>。</li><li><strong>标准包安装纪律</strong>：统一由 <code>pyproject.toml</code> 与 <code>uv.lock</code> 标准安装；严禁篡改 <code>sys.path</code>、注入 <code>PYTHONPATH</code> 或绕过 <code>python -I -m harness_lab doctor</code> 隔离自检。</li><li><strong>顶层评测模块冻结</strong>：顶层 15 个 <code>evals/*.py</code> 文件已由 <code>specs/replication-v1.json</code> 与 <code>specs/replication-v2.json</code> 锁定 SHA-256 摘要；新增评测或核验工具一律置于独立子包（<code>evals/&lt;subpkg&gt;/__init__.py</code> + <code>__main__.py</code>）。</li></ul>
+<h2 id="sec-4-3">3. 冻结资产与主实验证据的只读纪律</h2>
+<ul><li><strong>零字节冻结范围</strong>：<code>src/harness_lab/*</code>、顶层 15 个 <code>evals/*.py</code>、<code>evals/replication_v2/*</code>、<code>pyproject.toml</code>、<code>uv.lock</code>、<code>specs/*</code> 及 <code>tasks/frozen/*</code> 保持零字节变更（相对 <code>specs/replication-v2.json</code> 零差异）。</li><li><strong>主复现数据集（<code>replication-v2</code>）</strong>：<code>artifacts/replication-v2-2026-11-17/</code>（<code>324/324</code> 次运行、<code>54/54</code> 个配对区组、<code>0</code> 次 <code>model_failed</code>、双模型版本失效组 <code>P1 → P2</code> 由 <code>0/18</code> 升至 <code>18/18</code>、控制组 Model A <code>36/36 → 36/36</code>、Model B <code>36/36 → 35/36</code>）及其同级 <code>-audit/</code> 目录严格只读。</li><li><strong>有效失败原样保留</strong>：<code>acc-15-r2-B-P2</code> 为合法 HTTP 200 响应下的单引号 Python 字典语法退化，原样保留 <code>0</code> 分，严禁挑样重跑，严禁在运行时添加 <code>ast.literal_eval()</code> 等事后宽松 JSON 解析器。</li><li><strong>扩展实验产物保护</strong>：<code>acc15-probe-v2-2026-11-18</code>、<code>diagnostics-v2-2026-11-18</code>、<code>post-training-v2-2026-11-18</code>、<code>nextgen-v1-m2a-m3-pareto</code>、<code>nextgen-v1-m2b-m4-context-virtual</code>、<code>nextgen-v1-m5-security-shield</code> 及历史 <code>protected-before.json</code> 清单保持逐字节完好；任何重审均须校验前后指纹并写入全新独立目录。</li><li><strong>指标语义分离</strong>：严格区分 <code>correct_disposition</code> 与 <code>goal_completed</code>。仅当任务判定准则明确要求停止或拒绝时，安全停止或拒绝才属合规处置；未完成的可执行写任务绝不计入 <code>goal_completed</code>。</li></ul>
+<h2 id="sec-5-4">4. 离线模拟优先测试准则</h2>
+<ul><li>任何运行时、协议、恢复、安全或审计变更，均须先在零外部 API 调用下通过确定性离线测试（<code>ScriptedController</code>、<code>httpx.MockTransport</code>、stdio/热池 MCP 子进程、<code>?mode=ro</code> 只读 SQLite 夹具）。</li><li>离线命令从不自动加载 <code>.env</code>。经显式授权的在线实验仅可读取 <code>--model-env</code> 指定文件，严格遵守单次尝试停机规则，并记录 <code>perf_counter</code> 单调时钟耗时与真实词元用量。</li><li>模拟时钟与注入式进程崩溃仅用于离线基准与单元测试，绝不混作在线模型实验结论。</li></ul>
+<h2 id="sec-6-5-16">5. 16 项负向脱敏硬红线</h2>
+<p>版本库跟踪文件、<code>evals/evidence_ledger.json</code>、后训练导出语料、扩展实验摘要及 <code>site/*</code> 静态站资产必须同时满足以下 16 项负向红线：</p>
+<ol><li>严禁跟踪 <code>.env</code>、<code>.env.*</code>（<code>.env.example</code> 除外）或任何真实 API 密钥与 <code>Bearer </code> 令牌字符串。</li><li>严禁在公开产物中输出模型服务商环境变量名（<code>LAB_MODEL_API_KEY</code>、<code>LAB_MODEL_BASE_URL</code>、<code>LAB_MODEL_NAME</code>、<code>LAB_MODEL_TOKEN_LIMIT_FIELD</code>、<code>api_key</code>）。</li><li>严禁在公开或跟踪产物中泄漏本地盘符根路径、用户主目录或系统临时目录路径。</li><li>严禁提交原始 <code>.sqlite</code> 沙箱数据库、<code>private-server.json</code> 或未脱敏的 <code>trace.jsonl</code> 轨迹文件。</li><li>严禁在公开或训练载荷中暴露宿主线缆安全信封模式（<code>envelope</code>、<code>$defs</code>、<code>Envelope</code>）。</li><li>严禁暴露内部槽位或幂等令牌标识（<code>run_id</code>、<code>principal</code>、<code>operation_id</code>、<code>idempotency_key</code>、<code>run-&lt;hex&gt;</code>、<code>:write-0</code>、<code>dev-user</code>）。</li><li>严禁暴露宿主内部重试计数或阶段标记（<code>attempt</code>、<code>attempts</code>、<code>stage</code>、<code>initial_read</code>、<code>refresh_read</code>）。</li><li>严禁暴露私有故障注入配置（<code>fault</code>、<code>fault_plan</code>、<code>state_patch</code>、<code>delay_s</code>、<code>state_change</code>、<code>pre_commit_delay</code>、<code>commit_response_delay</code>、<code>malformed_result</code>、<code>protocol_error</code>）。</li><li>严禁暴露服务端私有文件系统键名（<code>db_path</code>、<code>server_path</code>、<code>private-server.json</code>、<code>environment.sqlite</code>）。</li><li>严禁暴露评测私有判定准则字段（<code>oracle</code>、<code>completable</code>、<code>write_allowed</code>、<code>final_state</code>、<code>expected_params</code>、<code>handoff_reason</code>、<code>required_facts</code>）。</li><li>严禁持久化或导出服务端不透明上下文与明文思维链字段（<code>encrypted_content</code>、<code>reasoning_content</code>、<code>reasoning</code>）。</li><li>严禁在字符串字段内嵌套未脱敏的 JSON 或 Python 字典字面量；审计扫描器对嵌套字面量执行递归解析。</li><li>严禁在监督微调导出中对 <code>system</code>、<code>user</code> 或 <code>tool</code> 消息设置 <code>loss_mask=1</code>；仅合规 <code>assistant</code> 决策轮允许纳入监督损失。</li><li>严禁导出上下文前缀不一致的偏好对，或将外部 API 传输异常充当负向内容样本。</li><li>严禁在导出的公开工具 JSON Schema 中遗漏 <code>additionalProperties: false</code> 或泄漏额外底层参数。</li><li>严禁绕过 <code>SecurityViolationError</code>（<code>assert_nextgen_artifact_safe</code> 与 <code>evals.verify_all</code>）写出公开账本或静态站数据。</li></ol>
+    </article>
+    <footer class="monograph-footer" style="margin-top:48px;border-top:1px solid var(--line-subtle);">
+      <a href="./index.html">← 返回五幕交互专著</a> · 零外部 API 离线核验：<code>uv run --frozen --no-env-file python -m evals.verify_all --ci</code>
+    </footer>
+  </main>
+</body>
+</html>

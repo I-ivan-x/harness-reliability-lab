@@ -1,0 +1,60 @@
+{
+  "task_input": {
+    "task_id": "acc-06",
+    "instruction": "For redundancy-review-26: Route to resilience when shared_dependency is true, otherwise service_ops. A ticket is urgent only when redundancy_units is at least 1 AND active_faults >= redundancy_units; otherwise it is normal. Increasing available redundancy can remove urgency even when active faults persist. Read current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts, recomputing queue and priority after any new state. Claim completion only with a delivered success receipt.",
+    "target_ref": "redundancy-review-26",
+    "as_of": "2026-11-12T12:00:00Z"
+  },
+  "environment": {
+    "target_ref": "redundancy-review-26",
+    "revision": 1,
+    "queue_options": [
+      "service_ops",
+      "resilience"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "shared_dependency": true,
+      "active_faults": 3,
+      "redundancy_units": 2
+    }
+  },
+  "oracle": {
+    "target_ref": "redundancy-review-26",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "redundancy-review-26",
+      "revision": 2,
+      "queue_options": [
+        "service_ops",
+        "resilience"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "shared_dependency": true,
+        "active_faults": 3,
+        "redundancy_units": 4
+      }
+    },
+    "expected_params": {
+      "target_ref": "redundancy-review-26",
+      "expected_revision": 2,
+      "queue": "resilience",
+      "priority": "normal"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "shared_dependency": true,
+        "active_faults": 3,
+        "redundancy_units": 4
+      }
+    }
+  }
+}

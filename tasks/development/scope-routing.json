@@ -1,0 +1,54 @@
+{
+  "task_input": {
+    "task_id": "dev-05",
+    "instruction": "For change-05: Use queue regional_ops when scope is regional and global_ops when scope is global. Both queues may be available, but routing must follow the current scope. Priority is normal. Read the current state first. Create exactly one ticket only when write_policy is allow; forbid means REFUSED and approval means HANDOFF_HUMAN. Use the latest observed revision and facts. Never claim completion without citing a delivered success receipt.",
+    "target_ref": "change-05",
+    "as_of": "2026-11-07T04:00:00Z"
+  },
+  "environment": {
+    "target_ref": "change-05",
+    "revision": 1,
+    "queue_options": [
+      "global_ops",
+      "regional_ops"
+    ],
+    "write_policy": "allow",
+    "facts": {
+      "scope": "global"
+    }
+  },
+  "oracle": {
+    "target_ref": "change-05",
+    "disposition": "COMPLETED",
+    "completable": true,
+    "write_allowed": true,
+    "final_state": {
+      "target_ref": "change-05",
+      "revision": 2,
+      "queue_options": [
+        "global_ops",
+        "regional_ops"
+      ],
+      "write_policy": "allow",
+      "facts": {
+        "scope": "regional"
+      }
+    },
+    "expected_params": {
+      "target_ref": "change-05",
+      "expected_revision": 2,
+      "queue": "regional_ops",
+      "priority": "normal"
+    }
+  },
+  "fault_plan": {
+    "kind": "state_change",
+    "attempt": 1,
+    "state_patch": {
+      "revision": 2,
+      "facts": {
+        "scope": "regional"
+      }
+    }
+  }
+}
